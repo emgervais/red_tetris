@@ -1,4 +1,4 @@
-export const Piece = {
+export const type = {
     L: 'L',
     J: 'J',
     T: 'T',

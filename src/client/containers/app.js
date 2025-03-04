@@ -1,13 +1,16 @@
 import React from 'react'
 import { connect } from 'react-redux'
 import { Board } from '../components/board'
-import { Empty } from '../helper/type'
+import { useGame } from '../hooks/useGame'
 
 const App = () => {
-  const board = Array(20).fill(null).map(() => Array(12).fill(Empty))
+  const {board, startGame, isPlaying} = useGame();
   return (
-    <div className='App'>
+    <div>
       <Board currentBoard={board}/>
+      <div className="control">
+        {isPlaying ? null : (<button onClick={startGame}>Play</button>)}
+      </div>
     </div>
   )
 }

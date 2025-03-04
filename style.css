@@ -1,6 +1,51 @@
+.cell {
+    flex-grow: 1;
+    aspect-ratio: 1;
+    border: 1px solid black;
+}
+
+.board {
+    display:flex;
+    flex-direction: column;
+    width: 50vw;
+}
+
+.row {
+    display: flex;
+    flex-direction: row;
+}
+#tetris {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    height: 100vh;
+}
+
 .Empty {
     background-color: aliceblue;
-    width: 30px;
-    height: 30px;
-    border: 1px solid black;
+}
+
+.J {
+    background-color: blue;
+}
+
+.L {
+    background-color: orange;
+}
+
+.O {
+    background-color: yellow;
+}
+
+.S {
+    background-color: green;
+}
+
+.T {
+    background-color: purple;
+}
+
+.Z {
+    background-color: red;
 }
