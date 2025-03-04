@@ -1,10 +1,14 @@
 import React from 'react'
 import { connect } from 'react-redux'
+import { Board } from '../components/board'
+import { Empty } from '../helper/type'
 
-
-const App = ({message}) => {
+const App = () => {
+  const board = Array(20).fill(null).map(() => Array(12).fill(Empty))
   return (
-    <span>{message}</span>
+    <div className='App'>
+      <Board currentBoard={board}/>
+    </div>
   )
 }
 
@@ -13,6 +17,7 @@ const mapStateToProps = (state) => {
     message: state.message
   }
 }
+
 export default connect(mapStateToProps, null)(App)
 
 
