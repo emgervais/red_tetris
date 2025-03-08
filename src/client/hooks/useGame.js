@@ -20,13 +20,11 @@ export function useGame() {
     const [isPlaying, setIsPlaying] = useState(false);
     const [tickSpeed, setTickSpeed] = useState(null);
 
-    const [
-        {board, row, col, block, shape},
-        dispatchState
-    ] = playTetris();
+    const [{board, row, col, block, shape}, dispatchState] = playTetris();
+    console.log(board);
 
     const tick = useCallback(() => {
-        dispatchBoardState({ type: 'drop'});}, [dispatchState]);
+        dispatchState({ type: 'drop'});}, [dispatchState]);
     
         useInterval(() => {
             if (!isPlaying)

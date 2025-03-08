@@ -2,14 +2,6 @@ import { useReducer } from "react"
 import { pieces } from "../helper/piece"
 import { type } from "../helper/type"
 
-export const BoardState = {
-    board: null,
-    row: null,
-    col: null,
-    block: null,
-    shape: null
-}
-
 export function playTetris() {
     const [board, setBoard] = useReducer(
         boardReducer,

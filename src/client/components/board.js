@@ -9,7 +9,6 @@ export function Board({ currentBoard }) {
                 return (
                     <div key={rowIndex} className="row">
                         {row.map((cell, cellIndex) => {
-                            console.log(cell); 
                             return (
                                 <Cell
                                     key={`${rowIndex}-${cellIndex}`}
