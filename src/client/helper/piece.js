@@ -11,12 +11,13 @@ const piece_L =
  [1, 1, 1]]
 
 const piece_J =
-[[1, 0, 1],
+[[1, 0, 0],
  [1, 1, 1]]
 
 const piece_T =
 [[0, 1, 0],
  [1, 1, 1]]
+
 
 const piece_O =
 [[1, 1],
@@ -28,5 +29,7 @@ const piece_I =
 export const pieces = {'S': piece_S, 'Z': piece_Z, 'L':piece_L,'J':piece_J, 'T':piece_T, 'O':piece_O, 'I':piece_I}
 
 export const transpose = (matrix) => {
-    return matrix[0].map((_, colIndex) => matrix.map(row => row[colIndex]))
+
+    matrix = matrix[0].map((_, colIndex) => matrix.map(row => row[colIndex]));
+    return matrix.map(row => row.reverse());
 }

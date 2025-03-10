@@ -1,0 +1,25 @@
+spacebar: drop
+handicap line(minus one top and add visual bottom line)
+menu after joining
+make the otherplayer spectra
+socket.io in middleware(????)
+
+score -> bonus
+destructible handicap -> bonus
+invisible gamemode -> bonus
+increase gravity after threshold -> bonus
+piece preview -> bonus
+
+
+
+backend
+------------------
+socket:
+    get piece
+    send handicap
+    dead
+    commit piece (for spectra)
+
+room creation and handling
+possibility relaunch game
+piece generation

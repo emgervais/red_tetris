@@ -1,5 +1,5 @@
 import { useReducer } from "react"
-import { pieces } from "../helper/piece"
+import { pieces, transpose } from "../helper/piece"
 import { type } from "../helper/type"
 
 export function playTetris() {
@@ -21,6 +21,48 @@ export function playTetris() {
     return [board, setBoard]
 }
 
+export function checkCollision(board, shape, row, col) {
+    for (let i = 0; i < shape.length; i++) {
+        for (let j = 0; j < shape[i].length; j++) {
+            if ((i + 1 === shape.length && row + i + 1 === board.length) || (shape[i][j] && (board[row + i + 1][col + j] !== 'Empty')))
+                return true;
+        }
+    }
+    return false;
+}
+
+function checkSideCollision(board, col, row, shape) {
+    for (let i = 0; i < shape.length; i++) {
+        for (let j = 0; j < shape[i].length; j++) {
+            if (shape[i][j] && (!board[row + i] || !board[row + i][col + j] || board[row + i][col + j] !== 'Empty'))    
+                return true;
+        }
+    }
+    return false;
+}
+
+function addPiece({board, row, col, shape, block}) {
+    const newBoard = board.map(row => [...row])
+    for (let i = 0; i < shape.length; i++) {
+        for (let j = 0; j < shape[i].length; j++) {
+            if (shape[i][j])
+                newBoard[row + i][col + j] = block;
+        }
+    }
+    return newBoard
+}
+
+function handleLine(board) {
+    let lines = 0;
+    board.forEach(row => {
+        if (row.every(cell => cell !== 'Empty')) {
+            lines++;
+            board.splice(board.indexOf(row), 1);
+            board.unshift(Array(10).fill('Empty'));
+        }
+    });
+    return {board, lines};
+}
 function boardReducer(state, action) {
     let copyState = { ...state };
     switch (action.type) {
@@ -29,23 +71,38 @@ function boardReducer(state, action) {
             return {
                 board: getEmptyBoard(),
                 row: 0,
-                col: 3,
+                col: 4,
                 block: randomBlock,
                 shape: pieces[randomBlock]
             }
         case 'drop':
             copyState.row++;
-            break;
+            return copyState;
         case 'commit':
-            return { ...state, col: state.col + 1 }
+            const newBlock = getRandomBlock();
+            const {board, line} = handleLine(addPiece({...copyState}));
+            return { board: board, block: newBlock, shape: pieces[newBlock], col:4, row:0 }
         case 'move':
-            return { ...state, block: action.payload }
+            let col = copyState.col;
+            let row = copyState.row;
+            if (action.payload === 'left' || action.payload === 'right') {
+                col += (action.payload === 'left' ? -1 : 1)
+                if (checkSideCollision(copyState.board, col, row, copyState.shape))
+                    col = copyState.col;
+            } else if (!checkCollision(copyState.board, copyState.shape, row, col))
+                row++;
+            return { ...copyState, col: col, row: row }
+        case 'rotate':
+            let shape = transpose(state.shape);
+            if (checkSideCollision(copyState.board, copyState.col, copyState.row, shape))
+                return { ...copyState}
+            return {...copyState, shape: shape}
         default:
             return state
     }
 }
 export function getEmptyBoard() {
-    return Array.from({ length: 20 }, () => Array(12).fill('Empty'))
+    return Array.from({ length: 20 }, () => Array(10).fill('Empty'))
 }
 
 function getRandomBlock() {
