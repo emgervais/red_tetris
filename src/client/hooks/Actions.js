@@ -55,7 +55,7 @@ function addPiece({board, row, col, shape, block}) {
 function handleLine(board) {
     let lines = 0;
     board.forEach(row => {
-        if (row.every(cell => cell !== 'Empty')) {
+        if (row.every(cell => (cell !== 'Empty' && cell !== 'Lock'))) {
             lines++;
             board.splice(board.indexOf(row), 1);
             board.unshift(Array(10).fill('Empty'));
@@ -63,6 +63,7 @@ function handleLine(board) {
     });
     return {board, lines};
 }
+
 function boardReducer(state, action) {
     let copyState = { ...state };
     switch (action.type) {
@@ -76,7 +77,14 @@ function boardReducer(state, action) {
                 shape: pieces[randomBlock]
             }
         case 'drop':
-            copyState.row++;
+            if (action.payload === 'full') {
+                while (!checkCollision(copyState.board, copyState.shape, copyState.row, copyState.col))
+                    copyState.row++;
+                const newBlock = getRandomBlock();
+                const {board, line} = handleLine(addPiece({...copyState}));
+                return { board: board, block: newBlock, shape: pieces[newBlock], col:4, row:0 }
+            } else
+                copyState.row++;
             return copyState;
         case 'commit':
             const newBlock = getRandomBlock();
@@ -87,7 +95,7 @@ function boardReducer(state, action) {
             let row = copyState.row;
             if (action.payload === 'left' || action.payload === 'right') {
                 col += (action.payload === 'left' ? -1 : 1)
-                if (checkSideCollision(copyState.board, col, row, copyState.shape))
+                if (checkSideCollision(copyState.board, col, row, copyState.shape)) 
                     col = copyState.col;
             } else if (!checkCollision(copyState.board, copyState.shape, row, col))
                 row++;
@@ -97,6 +105,10 @@ function boardReducer(state, action) {
             if (checkSideCollision(copyState.board, copyState.col, copyState.row, shape))
                 return { ...copyState}
             return {...copyState, shape: shape}
+        case 'handicap':
+            copyState.board.shift()
+            copyState.board.push(Array(10).fill('Lock'));
+            return { ...copyState}
         default:
             return state
     }

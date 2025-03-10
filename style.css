@@ -26,11 +26,17 @@ body {
 #tetris {
     display: flex;
     flex-direction: column;
-    align-items: center;
     justify-content: center;
     height: 100vh;
 }
 
+.container {
+    display:flex;
+    align-items: center;
+    justify-content: space-between;
+    width: 80%;
+    padding: 10%;
+}
 .Empty {
     background-color: aliceblue;
 }
@@ -61,4 +67,29 @@ body {
 
 .I {
     background-color: cyan;
+}
+
+.Lock {
+    background-color: rgb(85, 85, 85);
+}
+
+.spec {
+    border: 0.5px solid rgba(255, 0, 0, 0.521);
+}
+.phantom-cell {
+    flex-grow: 1;
+    aspect-ratio: 1;
+}
+
+.phantom-board {
+    display:flex;
+    flex-direction: column;
+    width: 20vw;
+    height: 40vh;
+    border: 1px solid black;
+}
+
+.phantom-row {
+    display: flex;
+    flex-direction: row;
 }

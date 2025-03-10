@@ -2,15 +2,17 @@ import React from 'react'
 import { connect } from 'react-redux'
 import { Board } from '../components/board'
 import { useGame } from '../hooks/useGame'
+import { PhantomBoard } from '../components/spectral'
 
 const App = () => {
-  const {board, startGame, isPlaying} = useGame();
+  const {board, startGame, isPlaying, opponentBoard} = useGame();
   return (
-    <div>
+    <div className='container'>
       <Board currentBoard={board}/>
       <div className="control">
         {isPlaying ? null : (<button onClick={startGame}>Play</button>)}
       </div>
+      <PhantomBoard board={opponentBoard} />
     </div>
   )
 }
