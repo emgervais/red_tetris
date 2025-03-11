@@ -12,12 +12,6 @@ piece preview -> bonus
 
 backend
 ------------------
-socket:
-    get piece
-    send handicap
-    dead
-    commit piece (for spectra)
 
 room creation and handling
 possibility relaunch game
-piece generation

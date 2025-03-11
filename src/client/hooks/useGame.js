@@ -1,7 +1,7 @@
 import { useState, useRef, useEffect, useCallback } from "react";
 import {playTetris, checkCollision} from "./Actions";
 import { getEmptyBoard } from "./Actions";
-
+import { socket } from "../socket";
 
 function useInterval(callback, delay) {
     const callbackRef = useRef(callback);
@@ -23,21 +23,27 @@ export function useGame() {
     const [isPlaying, setIsPlaying] = useState(false);
     const [tickSpeed, setTickSpeed] = useState(null);
     const [opponentBoard, setOpponentBoard] = useState(null);
-
     const [{board, row, col, block, shape}, dispatchState] = playTetris();
     const tick = useCallback(() => {
         dispatchState({ type: 'drop'});
     }, [dispatchState]);
 
-    // useEffect(() => {
-    //     socket.on('commit', (data) => {
-    //       setOpponentBoard(data.board);
-    //     });
+    useEffect(() => {
+        socket.on('opponent_board_update', (data) => {
+          setOpponentBoard(data.board);
+        });
         
-    //     return () => {
-    //       socket.off('opponent_board_update');
-    //     };
-    //   }, []);
+        socket.on('new_piece', (data) => {
+            dispatchState({ type: 'new_piece', payload: data.piece });
+        });
+
+        socket.on('handicap', (data) => {
+            dispatchState({ type: 'handicap', payload: data.amount});
+        });
+        return () => {
+          socket.off('opponent_board_update');
+        }
+      }, [socket]);
 
     useInterval(() => {
         if (!isPlaying)
@@ -52,6 +58,7 @@ export function useGame() {
     const startGame = useCallback(() => {
             setIsPlaying(true);
             setTickSpeed(800);
+            socket.connect();
             dispatchState({type: 'start'});
             setOpponentBoard(getEmptyBoard());
         }, [dispatchState]);
@@ -77,7 +84,7 @@ export function useGame() {
                     dispatchState({ type: 'drop', payload: 'full' });
                     break;
                 case 'a':
-                    dispatchState({type: 'handicap'});
+                    socket.emit('send_handicap', {amount: 2});
                     break;
                 default:
                     break;
@@ -97,7 +104,8 @@ export function useGame() {
             r.forEach((isSet, j) => {
                 if (isSet) {
                     if (board[row + i][col + j] !== 'Empty') {
-                        console.log('lost');
+                        socket.emit('dead');
+                        console.log("lost")
                         setIsPlaying(false);
                     }
                     renderedBoard[row + i][col + j] = block;
