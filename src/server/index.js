@@ -1,85 +1,21 @@
 import fs  from 'fs'
 import debug from 'debug'
 
-const rooms = []; // {id: string, players: [int], pieces_list: [char]}
-const logerror = debug('tetris:error') , loginfo = debug('tetris:info');
-const pieces = ['L', 'J', 'T', 'Z', 'S', 'O', 'I'];
-const generate_list = (length) => Array.from(Array(length), () => getRandomBlock());
-let index = 0;
-
-function getRandomBlock() {
-    return pieces[Math.floor(Math.random() * pieces.length)]
-}
-
-function get_piece(id, index) {
-  for(let i = 0; i < rooms.length; i++) {
-    const player = rooms[i].players.indexOf(id);
-    if(player !== -1) {
-      if(index === rooms[i].pieces_list.length)
-        rooms[i].pieces_list = rooms[i].pieces_list.concat(generate_list(50));
-      return rooms[i].pieces_list[index];
-    }
-  }
-  return getRandomBlock();
-}
-
-function check_room(room, id) {
-  const res = {index: -1, full: false, leader: true}
-  for(let i = 0; i < rooms.length; i++) {
-    if (rooms[i].id === room) {
-      if (rooms[i].players.length === 1) {
-        res.index = i;
-        res.leader = false;
-        rooms[i].players.push(id);
-      }
-      else
-        res.full = true;
-      return res;
-    }
-  }
-  res.id = (rooms.push({id: room, players: [id], pieces_list: generate_list(50)})) - 1;
-  return res;
-}
+const logerror = debug('tetris:error') , loginfo = debug('tetris:info')
 
 const initApp = (app, params, cb) => {
   const {host, port} = params
   const handler = (req, res) => {
-    const urlParts = req.url.split('/').filter(part => part !== '');
-    if (urlParts[urlParts.length - 1] === 'bundle.js' && urlParts.length === 2) {
-      fs.readFile(__dirname + '/../../build/bundle.js', (err, data) => {
-        if (err) {
-          logerror(err)
-          res.writeHead(500)
-          return res.end('Error loading bundle.js')
-        }
-        res.writeHead(300)
-        res.end(data)
-      })
-    } else if(urlParts[urlParts.length - 1] === 'style.css' && urlParts.length === 2) {
-      fs.readFile(__dirname + '/../../style.css', (err, data) => {
-        if (err) {
-          logerror(err)
-          res.writeHead(500)
-          return res.end('Error loading style.css')
-        }
-        res.writeHead(200)
-        res.end(data)
-      })
-    }
-    else if (urlParts.length === 2 && !req.url.endsWith('/')) {
-      fs.readFile(__dirname + '/../../index.html', (err, data) => {
-        if (err) {
-          logerror(err)
-          res.writeHead(500)
-          return res.end('Error loading index.html')
-        }
-        res.writeHead(200)
-        res.end(data)
-      })
-    } else {
-      res.writeHead(404)
-      res.end('Please enter the URL in that format: http://<server_name_or_ip>:<port>/<room>/<player_name>')
-    }
+    const file = req.url === '/bundle.js' ? '/../../build/bundle.js' : '/../../index.html'
+    fs.readFile(__dirname + file, (err, data) => {
+      if (err) {
+        logerror(err)
+        res.writeHead(500)
+        return res.end('Error loading index.html')
+      }
+      res.writeHead(200)
+      res.end(data)
+    })
   }
 
   app.on('request', handler)
@@ -93,42 +29,23 @@ const initApp = (app, params, cb) => {
 const initEngine = io => {
   io.on('connection', function(socket){
     loginfo("Socket connected: " + socket.id)
-    socket.on('get_piece', (payload) => {
-      const piece = get_piece(socket.id, payload.index);
-      io.emit('new_piece', {piece: piece});
-    });
-    socket.on('send_handicap', (payload) => {
-      io.emit('handicap', {amount: payload.amount})
-    });
+    socket.on('action', (action) => {
 
-    socket.on('dead', () => {
-      console.log(socket.id + " is dead");
+      if(action.type === 'server/ping'){
+        socket.emit('action', {type: 'pong'})
+      }
+      if(action.type === 'server/say') {
+        socket.emit('action', {type: 'dance'})
+      }
     })
-
-    socket.on('commit', (payload) => {
-  
-    });
-
-    socket.on('join_request', (payload) => {
-      const res = check_room(payload.room, socket.id)
-      console.log(rooms);
-      if(res.full)
-        io.emit('error', {message: 'Room full'});
-      io.emit('join_room', {isLeader: res.leader});
-    });
   })
 }
 
 export function create(params){
   const promise = new Promise( (resolve, reject) => {
-    const app = require('http').createServer();
+    const app = require('http').createServer()
     initApp(app, params, () =>{
-      const io = require('socket.io')(app, {
-        cors: {
-          origin: "http://localhost:8080",
-        }
-      });
-
+      const io = require('socket.io')(app)
       const stop = (cb) => {
         io.close()
         app.close( () => {

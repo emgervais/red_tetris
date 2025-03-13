@@ -1,11 +1,22 @@
 import { useReducer } from "react"
 import { pieces, transpose } from "../helper/piece"
 import { type } from "../helper/type"
-import { socket } from "../socket"
 
 export function playTetris() {
-    const [board, setBoard] = useReducer(boardReducer, {board: [], row: 0, col: 0, block: type.I, shape: pieces[type.I], index: 0}, (emptyState) => {
-            return { ...emptyState, board: getEmptyBoard() }
+    const [board, setBoard] = useReducer(
+        boardReducer,
+        {
+            board: [],
+            row: 0,
+            col: 0,
+            block: type.I,
+            shape: pieces[type.I]
+        },
+        (emptyState) => {
+            const state = { ...emptyState,
+                board: getEmptyBoard(),
+            }
+            return state
         });
     return [board, setBoard]
 }
@@ -57,31 +68,28 @@ function boardReducer(state, action) {
     let copyState = { ...state };
     switch (action.type) {
         case 'start':
-            socket.emit('get_piece');
+            const randomBlock = getRandomBlock()
             return {
                 board: getEmptyBoard(),
                 row: 0,
                 col: 4,
-                block: '',
-                shape: [[]],
-                index: 0
+                block: randomBlock,
+                shape: pieces[randomBlock]
             }
         case 'drop':
             if (action.payload === 'full') {
                 while (!checkCollision(copyState.board, copyState.shape, copyState.row, copyState.col))
                     copyState.row++;
-                socket.emit("get_piece", {index: copyState.index});
+                const newBlock = getRandomBlock();
                 const {board, line} = handleLine(addPiece({...copyState}));
-                socket.emit('commit', {board: board});
-                return { ...copyState, board: board, shape: [[]], col:4, row:0, index: copyState.index++ }
+                return { board: board, block: newBlock, shape: pieces[newBlock], col:4, row:0 }
             } else
                 copyState.row++;
             return copyState;
         case 'commit':
-            socket.emit('get_piece', {index: copyState.index});
+            const newBlock = getRandomBlock();
             const {board, line} = handleLine(addPiece({...copyState}));
-            socket.emit('commit', {board: board});
-            return { ...copyState, board: board, shape: [[]], col:4, row:0, index: copyState.index++ }
+            return { board: board, block: newBlock, shape: pieces[newBlock], col:4, row:0 }
         case 'move':
             let col = copyState.col;
             let row = copyState.row;
@@ -98,19 +106,18 @@ function boardReducer(state, action) {
                 return { ...copyState}
             return {...copyState, shape: shape}
         case 'handicap':
-            while(action.payload) {
-                copyState.board.shift()
-                copyState.board.push(Array(10).fill('Lock'));
-                action.payload--;
-            }
+            copyState.board.shift()
+            copyState.board.push(Array(10).fill('Lock'));
             return { ...copyState}
-        case 'new_piece':
-            const newBlock = action.payload;
-            return {...copyState, block: newBlock, shape: pieces[newBlock]}
         default:
             return state
     }
 }
 export function getEmptyBoard() {
     return Array.from({ length: 20 }, () => Array(10).fill('Empty'))
+}
+
+function getRandomBlock() {
+    const keys = Object.keys(type)
+    return keys[Math.floor(Math.random() * keys.length)]
 }
