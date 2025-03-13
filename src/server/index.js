@@ -105,16 +105,15 @@ const initEngine = io => {
       const piece = get_piece(socket.id, payload.index);
       socket.emit('new_piece', {piece: piece});
     });
-    socket.on('send_handicap', (payload) => {
-      socket.to().emit('handicap', {amount: payload.amount})
-    });
 
     socket.on('dead', () => {
       console.log(socket.id + " is dead");
     })
 
     socket.on('commit', (payload) => {
-  
+      const roomIndex = find_room_id(socket.id);
+      if(payload.handicap)
+        socket.to(rooms[roomIndex].id).emit('handicap', {amount: payload.handicap - 1});
     });
 
     socket.on('join_request', (payload) => {
@@ -129,7 +128,7 @@ const initEngine = io => {
     socket.on('start_game', () => {
       console.log('start_game');
       const roomIndex = find_room_id(socket.id);
-      if(socket.id !== rooms[roomIndex].players[0])
+      if(roomIndex === -1 || socket.id !== rooms[roomIndex].players[0])
         return;
       rooms[roomIndex].isPlaying = true;
       io.to(rooms[roomIndex].id).emit('start_game');

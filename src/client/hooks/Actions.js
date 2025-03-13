@@ -50,7 +50,7 @@ function handleLine(board) {
             board.unshift(Array(10).fill('Empty'));
         }
     });
-    return {board, lines};
+    return {board: board, lines: lines};
 }
 
 function boardReducer(state, action) {
@@ -71,16 +71,16 @@ function boardReducer(state, action) {
                 while (!checkCollision(copyState.board, copyState.shape, copyState.row, copyState.col))
                     copyState.row++;
                 socket.emit("get_piece", {index: copyState.index++});
-                const {board, line} = handleLine(addPiece({...copyState}));
-                socket.emit('commit', {board: board});
+                const {board, lines} = handleLine(addPiece({...copyState}));
+                socket.emit('commit', {board: board, handicap: lines});
                 return { ...copyState, board: board, shape: [[]], col:4, row:0, index: copyState.index }
             } else
                 copyState.row++;
             return copyState;
         case 'commit':
             socket.emit('get_piece', {index: copyState.index++});
-            const {board, line} = handleLine(addPiece({...copyState}));
-            socket.emit('commit', {board: board});
+            const {board, lines} = handleLine(addPiece({...copyState}));
+            socket.emit('commit', {board: board, handicap: lines});
             return { ...copyState, board: board, shape: [[]], col:4, row:0, index: copyState.index }
         case 'move':
             let col = copyState.col;
