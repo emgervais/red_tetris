@@ -20,15 +20,36 @@ function useInterval(callback, delay) {
 }
 
 export function useGame() {
+    const [room, setRoom] = useState(null);
+    const [roomState, setRoomState] = useState({
+      isLeader: false,
+      gameInProgress: false
+    });
     const [isPlaying, setIsPlaying] = useState(false);
     const [tickSpeed, setTickSpeed] = useState(null);
     const [opponentBoard, setOpponentBoard] = useState(null);
-    const [{board, row, col, block, shape}, dispatchState] = playTetris();
+    const [{board, row, col, block, shape, index}, dispatchState] = playTetris();
     const tick = useCallback(() => {
         dispatchState({ type: 'drop'});
     }, [dispatchState]);
-
     useEffect(() => {
+        socket.emit('join_request', {room: 'emile12'});
+    }, []);
+    useEffect(() => {
+
+        socket.on('join_room', (data) => {
+          setRoomState({
+            isLeader: data.isLeader,
+            gameInProgress: false
+          });
+          setRoom('emile12');
+          console.log(data);
+        });
+    
+        socket.on('start_game', () => {
+          startGame();
+        });
+
         socket.on('opponent_board_update', (data) => {
           setOpponentBoard(data.board);
         });
@@ -113,5 +134,5 @@ export function useGame() {
             });
         });
     }
-    return {board: renderedBoard, startGame, isPlaying, opponentBoard}
+    return {board: renderedBoard, startGame, isPlaying, opponentBoard, roomState}
 }
