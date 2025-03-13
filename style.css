@@ -75,6 +75,9 @@ body {
 
 .spec {
     border: 0.5px solid rgba(255, 0, 0, 0.521);
+    box-sizing: border-box;
+    -moz-box-sizing: border-box;
+    -webkit-box-sizing: border-box;
 }
 .phantom-cell {
     flex-grow: 1;
@@ -85,7 +88,6 @@ body {
     display:flex;
     flex-direction: column;
     width: 20vw;
-    height: 40vh;
     border: 1px solid black;
 }
 

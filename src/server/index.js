@@ -11,6 +11,20 @@ function getRandomBlock() {
     return pieces[Math.floor(Math.random() * pieces.length)]
 }
 
+function create_spectrum(board) {
+  const spec = new Array(board[0].length);
+  
+  for(let i = 0; i < board[0].length; i++) {
+    spec[i] = board.length;
+    for(let j = 0; j < board.length; j++) {
+      if(board[j][i] !== 'Empty') {
+        spec[i] = j;
+        break;
+      }
+    }
+  }
+  return spec;
+}
 function get_piece(id, index) {
   const i = find_room_id(id);
   if(i !== -1) {
@@ -114,6 +128,9 @@ const initEngine = io => {
       const roomIndex = find_room_id(socket.id);
       if(payload.handicap)
         socket.to(rooms[roomIndex].id).emit('handicap', {amount: payload.handicap - 1});
+      const spec = create_spectrum(payload.board);
+      console.log(spec);
+      socket.to(rooms[roomIndex].id).emit('opponent_board_update', {board: spec});
     });
 
     socket.on('join_request', (payload) => {
@@ -133,6 +150,15 @@ const initEngine = io => {
       rooms[roomIndex].isPlaying = true;
       io.to(rooms[roomIndex].id).emit('start_game');
     })
+    socket.on("disconnect", () => {
+      console.log('disconect', socket.id);
+      const roomIndex = find_room_id(socket.id);
+      if (roomIndex !== -1) {
+        rooms[roomIndex].players.splice(rooms[roomIndex].players.indexOf(socket.id), 1)
+        if (rooms[roomIndex].players.length === 0)
+          rooms.splice(roomIndex, 1);
+      }
+    });
   })
 }
 
