@@ -36,14 +36,12 @@ export function useGame() {
         socket.emit('join_request', {room: 'emile12'});
     }, []);
     useEffect(() => {
-
         socket.on('join_room', (data) => {
           setRoomState({
             isLeader: data.isLeader,
             gameInProgress: false
           });
           setRoom('emile12');
-          console.log(data);
         });
     
         socket.on('start_game', () => {
@@ -79,7 +77,7 @@ export function useGame() {
     const startGame = useCallback(() => {
             setIsPlaying(true);
             setTickSpeed(800);
-            socket.connect();
+            // socket.connect();
             dispatchState({type: 'start'});
             setOpponentBoard(getEmptyBoard());
         }, [dispatchState]);

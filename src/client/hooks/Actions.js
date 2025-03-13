@@ -4,7 +4,7 @@ import { type } from "../helper/type"
 import { socket } from "../socket"
 
 export function playTetris() {
-    const [board, setBoard] = useReducer(boardReducer, {board: [], row: 0, col: 0, block: type.I, shape: pieces[type.I], index: 0}, (emptyState) => {
+    const [board, setBoard] = useReducer(boardReducer, {board: [], row: 0, col: 0, block: '', shape: [[]], index: 0}, (emptyState) => {
             return { ...emptyState, board: getEmptyBoard() }
         });
     return [board, setBoard]
@@ -57,31 +57,31 @@ function boardReducer(state, action) {
     let copyState = { ...state };
     switch (action.type) {
         case 'start':
-            socket.emit('get_piece');
+            socket.emit('get_piece', {index: 0});
             return {
                 board: getEmptyBoard(),
                 row: 0,
                 col: 4,
                 block: '',
                 shape: [[]],
-                index: 0
+                index: 1
             }
         case 'drop':
             if (action.payload === 'full') {
                 while (!checkCollision(copyState.board, copyState.shape, copyState.row, copyState.col))
                     copyState.row++;
-                socket.emit("get_piece", {index: copyState.index});
+                socket.emit("get_piece", {index: copyState.index++});
                 const {board, line} = handleLine(addPiece({...copyState}));
                 socket.emit('commit', {board: board});
-                return { ...copyState, board: board, shape: [[]], col:4, row:0, index: copyState.index++ }
+                return { ...copyState, board: board, shape: [[]], col:4, row:0, index: copyState.index }
             } else
                 copyState.row++;
             return copyState;
         case 'commit':
-            socket.emit('get_piece', {index: copyState.index});
+            socket.emit('get_piece', {index: copyState.index++});
             const {board, line} = handleLine(addPiece({...copyState}));
             socket.emit('commit', {board: board});
-            return { ...copyState, board: board, shape: [[]], col:4, row:0, index: copyState.index++ }
+            return { ...copyState, board: board, shape: [[]], col:4, row:0, index: copyState.index }
         case 'move':
             let col = copyState.col;
             let row = copyState.row;

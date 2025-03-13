@@ -1,29 +1,37 @@
 import fs  from 'fs'
 import debug from 'debug'
+import { SocketAddress } from 'net';
 
-const rooms = []; // {id: string, players: [int], pieces_list: [char]}
+const rooms = []; // {id: string, players: [int], pieces_list: [char], isPlaying: bool}
 const logerror = debug('tetris:error') , loginfo = debug('tetris:info');
 const pieces = ['L', 'J', 'T', 'Z', 'S', 'O', 'I'];
 const generate_list = (length) => Array.from(Array(length), () => getRandomBlock());
-let index = 0;
 
 function getRandomBlock() {
     return pieces[Math.floor(Math.random() * pieces.length)]
 }
 
 function get_piece(id, index) {
-  for(let i = 0; i < rooms.length; i++) {
-    const player = rooms[i].players.indexOf(id);
-    if(player !== -1) {
-      if(index === rooms[i].pieces_list.length)
-        rooms[i].pieces_list = rooms[i].pieces_list.concat(generate_list(50));
-      return rooms[i].pieces_list[index];
-    }
+  const i = find_room_id(id);
+  if(i !== -1) {
+    if(index === rooms[i].pieces_list.length)
+      rooms[i].pieces_list = rooms[i].pieces_list.concat(generate_list(50));
+    return rooms[i].pieces_list[index];
   }
   return getRandomBlock();
 }
 
-function check_room(room, id) {
+function find_room_id(id) {
+  for(let i = 0; i < rooms.length; i++) {
+    const player = rooms[i].players.indexOf(id);
+    if(player !== -1) {
+      return i;
+    }
+  }
+  return -1;
+}
+
+function init_room(room, id) {
   const res = {index: -1, full: false, leader: true}
   for(let i = 0; i < rooms.length; i++) {
     if (rooms[i].id === room) {
@@ -37,7 +45,7 @@ function check_room(room, id) {
       return res;
     }
   }
-  res.id = (rooms.push({id: room, players: [id], pieces_list: generate_list(50)})) - 1;
+  res.id = (rooms.push({id: room, players: [id], pieces_list: generate_list(50), isPlaying: false})) - 1;
   return res;
 }
 
@@ -95,10 +103,10 @@ const initEngine = io => {
     loginfo("Socket connected: " + socket.id)
     socket.on('get_piece', (payload) => {
       const piece = get_piece(socket.id, payload.index);
-      io.emit('new_piece', {piece: piece});
+      socket.emit('new_piece', {piece: piece});
     });
     socket.on('send_handicap', (payload) => {
-      io.emit('handicap', {amount: payload.amount})
+      socket.to().emit('handicap', {amount: payload.amount})
     });
 
     socket.on('dead', () => {
@@ -110,12 +118,22 @@ const initEngine = io => {
     });
 
     socket.on('join_request', (payload) => {
-      const res = check_room(payload.room, socket.id)
+      const res = init_room(payload.room, socket.id);
       console.log(rooms);
       if(res.full)
-        io.emit('error', {message: 'Room full'});
-      io.emit('join_room', {isLeader: res.leader});
+        socket.emit('error', {message: 'Room full'});
+      socket.join(payload.room);
+      socket.emit('join_room', {isLeader: res.leader});
     });
+
+    socket.on('start_game', () => {
+      console.log('start_game');
+      const roomIndex = find_room_id(socket.id);
+      if(socket.id !== rooms[roomIndex].players[0])
+        return;
+      rooms[roomIndex].isPlaying = true;
+      io.to(rooms[roomIndex].id).emit('start_game');
+    })
   })
 }
 

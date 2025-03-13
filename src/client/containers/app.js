@@ -16,7 +16,7 @@ const App = () => {
     <div className='container'>
       <Board currentBoard={board}/>
       <div className="control">
-        {roomState.isLeader ? (<button onClick={() => {socket.emit('start_game', {room: 'emile12'})}}>Start Game</button>): 'Waiting for leader to start game'}
+        {roomState.isLeader ? !isPlaying ? (<button onClick={() => socket.emit('start_game')}>Start Game</button>) : '': 'Waiting for leader to start game'}
       </div>
       <PhantomBoard board={opponentBoard} />
     </div>

@@ -1,0 +1,560 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <title>Code coverage report for server/index.js</title>
+    <meta charset="utf-8" />
+    <link rel="stylesheet" href="../prettify.css" />
+    <link rel="stylesheet" href="../base.css" />
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <style type='text/css'>
+        .coverage-summary .sorter {
+            background-image: url(../sort-arrow-sprite.png);
+        }
+    </style>
+</head>
+<body>
+<div class='wrapper'>
+  <div class='pad1'>
+    <h1>
+      <a href="../index.html">all files</a> / <a href="index.html">server/</a> index.js
+    </h1>
+    <div class='clearfix'>
+      <div class='fl pad1y space-right2'>
+        <span class="strong">25% </span>
+        <span class="quiet">Statements</span>
+        <span class='fraction'>5/20</span>
+      </div>
+      <div class='fl pad1y space-right2'>
+        <span class="strong">0% </span>
+        <span class="quiet">Branches</span>
+        <span class='fraction'>0/32</span>
+      </div>
+      <div class='fl pad1y space-right2'>
+        <span class="strong">0% </span>
+        <span class="quiet">Functions</span>
+        <span class='fraction'>0/23</span>
+      </div>
+      <div class='fl pad1y space-right2'>
+        <span class="strong">25% </span>
+        <span class="quiet">Lines</span>
+        <span class='fraction'>5/20</span>
+      </div>
+    </div>
+  </div>
+  <div class='status-line low'></div>
+<pre><table class="coverage">
+<tr><td class="line-count quiet">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+15
+16
+17
+18
+19
+20
+21
+22
+23
+24
+25
+26
+27
+28
+29
+30
+31
+32
+33
+34
+35
+36
+37
+38
+39
+40
+41
+42
+43
+44
+45
+46
+47
+48
+49
+50
+51
+52
+53
+54
+55
+56
+57
+58
+59
+60
+61
+62
+63
+64
+65
+66
+67
+68
+69
+70
+71
+72
+73
+74
+75
+76
+77
+78
+79
+80
+81
+82
+83
+84
+85
+86
+87
+88
+89
+90
+91
+92
+93
+94
+95
+96
+97
+98
+99
+100
+101
+102
+103
+104
+105
+106
+107
+108
+109
+110
+111
+112
+113
+114
+115
+116
+117
+118
+119
+120
+121
+122
+123
+124
+125
+126
+127
+128
+129
+130
+131
+132
+133
+134
+135
+136
+137
+138
+139
+140
+141
+142
+143
+144
+145
+146
+147
+148
+149
+150
+151
+152
+153
+154
+155
+156
+157
+158
+159
+160
+161
+162
+163
+164
+165
+166</td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">1×</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">1×</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">1×</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">1×</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">1×</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span></td><td class="text"><pre class="prettyprint lang-js">import fs  from 'fs'
+import debug from 'debug'
+import { SocketAddress } from 'net';
+&nbsp;
+const rooms = []; // {id: string, players: [int], pieces_list: [char], isPlaying: bool}
+const logerror = debug('tetris:error') , loginfo = debug('tetris:info');
+const pieces = ['L', 'J', 'T', 'Z', 'S', 'O', 'I'];
+const generate_list = (length) =&gt; Array.from(Array(length), () =&gt; getRandomBlock());
+&nbsp;
+<span class="fstat-no" title="function not covered" >function getRandomBlock() {</span>
+    return pieces[Math.floor(Math.random() * pieces.length)]
+}
+&nbsp;
+<span class="fstat-no" title="function not covered" >function get_piece(id, index) {</span>
+  const i = find_room_id(id);
+<span class="cstat-no" title="statement not covered" >  if(i !== -1) {</span>
+<span class="cstat-no" title="statement not covered" >    if(index === rooms[i].pieces_list.length)</span>
+      rooms[i].pieces_list = rooms[i].pieces_list.concat(generate_list(50));
+    return rooms[i].pieces_list[index];
+  }
+  return getRandomBlock();
+}
+&nbsp;
+<span class="fstat-no" title="function not covered" >function find_room_id(id) {</span>
+<span class="cstat-no" title="statement not covered" >  for(let i = 0; i &lt; rooms.length; i++) {</span>
+    const player = rooms[i].players.indexOf(id);
+<span class="cstat-no" title="statement not covered" >    if(player !== -1) {</span>
+      return i;
+    }
+  }
+  return -1;
+}
+&nbsp;
+<span class="fstat-no" title="function not covered" >function init_room(room, id) {</span>
+  const res = {index: -1, full: false, leader: true}
+<span class="cstat-no" title="statement not covered" >  for(let i = 0; i &lt; rooms.length; i++) {</span>
+<span class="cstat-no" title="statement not covered" >    if (rooms[i].id === room) {</span>
+<span class="cstat-no" title="statement not covered" >      if (rooms[i].players.length === 1) {</span>
+        res.index = i;
+        res.leader = false;
+        rooms[i].players.push(id);
+      }
+      else
+        res.full = true;
+      return res;
+    }
+  }
+  res.id = (rooms.push({id: room, players: [id], pieces_list: generate_list(50), isPlaying: false})) - 1;
+  return res;
+}
+&nbsp;
+const initApp = <span class="fstat-no" title="function not covered" >(app, params, cb) =&gt; {</span>
+  const {host, port} = params
+  const handler = <span class="fstat-no" title="function not covered" >(req, res) =&gt; {</span>
+    const urlParts = req.url.split('/').filter(part =&gt; part !== '');
+<span class="cstat-no" title="statement not covered" >    if (urlParts[urlParts.length - 1] === 'bundle.js' &amp;&amp; urlParts.length === 2) {</span>
+      fs.readFile(__dirname + '/../../build/bundle.js', <span class="fstat-no" title="function not covered" >(err, data) =&gt; {</span>
+<span class="cstat-no" title="statement not covered" >        if (err) {</span>
+          logerror(err)
+          res.writeHead(500)
+          return res.end('Error loading bundle.js')
+        }
+        res.writeHead(300)
+        res.end(data)
+      })
+    } else <span class="cstat-no" title="statement not covered" >if(urlParts[urlParts.length - 1] === 'style.css' &amp;&amp; urlParts.length === 2) {</span>
+      fs.readFile(__dirname + '/../../style.css', <span class="fstat-no" title="function not covered" >(err, data) =&gt; {</span>
+<span class="cstat-no" title="statement not covered" >        if (err) {</span>
+          logerror(err)
+          res.writeHead(500)
+          return res.end('Error loading style.css')
+        }
+        res.writeHead(200)
+        res.end(data)
+      })
+    }
+    else <span class="cstat-no" title="statement not covered" >if (urlParts.length === 2 &amp;&amp; !req.url.endsWith('/')) {</span>
+      fs.readFile(__dirname + '/../../index.html', <span class="fstat-no" title="function not covered" >(err, data) =&gt; {</span>
+<span class="cstat-no" title="statement not covered" >        if (err) {</span>
+          logerror(err)
+          res.writeHead(500)
+          return res.end('Error loading index.html')
+        }
+        res.writeHead(200)
+        res.end(data)
+      })
+    } else {
+      res.writeHead(404)
+      res.end('Please enter the URL in that format: http://&lt;server_name_or_ip&gt;:&lt;port&gt;/&lt;room&gt;/&lt;player_name&gt;')
+    }
+  }
+&nbsp;
+  app.on('request', handler)
+&nbsp;
+  app.listen({host, port}, <span class="fstat-no" title="function not covered" >() =&gt;{</span>
+    loginfo(`tetris listen on ${params.url}`)
+    cb()
+  })
+}
+&nbsp;
+const initEngine = <span class="fstat-no" title="function not covered" >io =&gt; {</span>
+  io.on('connection', <span class="fstat-no" title="function not covered" >function(socket){</span>
+    loginfo("Socket connected: " + socket.id)
+    socket.on('get_piece', <span class="fstat-no" title="function not covered" >(payload) =&gt; {</span>
+      console.log('get_piece', payload);
+      const piece = get_piece(socket.id, payload.index);
+      io.emit('new_piece', {piece: piece});
+    });
+    socket.on('send_handicap', <span class="fstat-no" title="function not covered" >(payload) =&gt; {</span>
+      io.emit('handicap', {amount: payload.amount})
+    });
+&nbsp;
+    socket.on('dead', <span class="fstat-no" title="function not covered" >() =&gt; {</span>
+      console.log(socket.id + " is dead");
+    })
+&nbsp;
+    socket.on('commit', <span class="fstat-no" title="function not covered" >(payload) =&gt; {</span>
+  
+    });
+&nbsp;
+    socket.on('join_request', <span class="fstat-no" title="function not covered" >(payload) =&gt; {</span>
+      const res = init_room(payload.room, socket.id);
+      console.log(rooms);
+<span class="cstat-no" title="statement not covered" >      if(res.full)</span>
+        io.emit('error', {message: 'Room full'});
+      socket.join(payload.room);
+      io.emit('join_room', {isLeader: res.leader});
+    });
+&nbsp;
+    socket.on('start_game', <span class="fstat-no" title="function not covered" >() =&gt; {</span>
+      console.log('start_game');
+      const roomIndex = find_room_id(socket.id);
+<span class="cstat-no" title="statement not covered" >      if(socket.id !== rooms[roomIndex].players[0])</span>
+        return;
+      rooms[roomIndex].isPlaying = true;
+      io.to(rooms[roomIndex].id).emit('start_game');
+    })
+  })
+}
+&nbsp;
+export <span class="fstat-no" title="function not covered" >function create(params){</span>
+  const promise = new Promise( <span class="fstat-no" title="function not covered" >(resolve, reject) =&gt; {</span>
+    const app = require('http').createServer();
+    initApp(app, params, <span class="fstat-no" title="function not covered" >() =&gt;{</span>
+      const io = require('socket.io')(app, {
+        cors: {
+          origin: "http://localhost:8080",
+        }
+      });
+&nbsp;
+      const stop = <span class="fstat-no" title="function not covered" >(cb) =&gt; {</span>
+        io.close()
+        app.close( <span class="fstat-no" title="function not covered" >() =&gt; {</span>
+          app.unref()
+        })
+        loginfo(`Engine stopped.`)
+        cb()
+      }
+&nbsp;
+      initEngine(io)
+      resolve({stop})
+    })
+  })
+  return promise
+}
+&nbsp;</pre></td></tr>
+</table></pre>
+<div class='push'></div><!-- for sticky footer -->
+</div><!-- /wrapper -->
+<div class='footer quiet pad2 space-top1 center small'>
+  Code coverage
+  generated by <a href="http://istanbul-js.org/" target="_blank">istanbul</a> at Thu Mar 13 2025 19:03:21 GMT+0100 (Central European Standard Time)
+</div>
+</div>
+<script src="../prettify.js"></script>
+<script>
+window.onload = function () {
+        if (typeof prettyPrint === 'function') {
+            prettyPrint();
+        }
+};
+</script>
+<script src="../sorter.js"></script>
+</body>
+</html>
