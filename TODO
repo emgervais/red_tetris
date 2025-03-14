@@ -1,16 +1,13 @@
-menu after joining
-make the otherplayer spectra
-socket.io in middleware(????)
 
-score -> bonus
-destructible handicap -> bonus
-invisible gamemode -> bonus
-increase gravity after threshold -> bonus
-piece preview -> bonus
-
-
-
-backend
-------------------
-
-possibility relaunch game
+// score -> bonus
+// destructible handicap -> bonus
+// invisible gamemode -> bonus
+// increase gravity after threshold -> bonus
+// piece preview -> bonus
+// properly handle death
+// only pure fun (doesnt mutate input no http)
+// backend
+// ------------------
+// possibility relaunch game + reconnect
+// handle death
+// at least the Player, Piece and Game classes.

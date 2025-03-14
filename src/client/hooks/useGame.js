@@ -20,14 +20,15 @@ function useInterval(callback, delay) {
 }
 
 export function useGame() {
-    const [room, setRoom] = useState(null);
     const [roomState, setRoomState] = useState({
       isLeader: false,
-      gameInProgress: false
+      gameInProgress: false,
+      name: ''
     });
     const [isPlaying, setIsPlaying] = useState(false);
     const [tickSpeed, setTickSpeed] = useState(null);
-    const [opponentBoard, setOpponentBoard] = useState(null);
+    const [message, setMessage] = useState('');
+    const [opponentBoard, setOpponentBoard] = useState({});
     const [{board, row, col, block, shape, index}, dispatchState] = playTetris();
     const tick = useCallback(() => {
         dispatchState({ type: 'drop'});
@@ -39,9 +40,9 @@ export function useGame() {
         socket.on('join_room', (data) => {
           setRoomState({
             isLeader: data.isLeader,
-            gameInProgress: false
+            gameInProgress: false,
+            name: data.name
           });
-          setRoom('emile12');
         });
     
         socket.on('start_game', () => {
@@ -49,7 +50,7 @@ export function useGame() {
         });
 
         socket.on('opponent_board_update', (data) => {
-          setOpponentBoard(data.board);
+          setOpponentBoard(prevBoards => ({...prevBoards, [data.name]: data.board}));
         });
         
         socket.on('new_piece', (data) => {
@@ -58,6 +59,15 @@ export function useGame() {
 
         socket.on('handicap', (data) => {
             dispatchState({ type: 'handicap', payload: data.amount});
+        });
+
+        socket.on('win', (data) => {
+            setIsPlaying(false);
+            setMessage(data.message);
+        });
+
+        socket.on('error', (data) => {
+            setMessage(data.message);
         });
         return () => {
           socket.off('opponent_board_update');
@@ -77,9 +87,7 @@ export function useGame() {
     const startGame = useCallback(() => {
             setIsPlaying(true);
             setTickSpeed(800);
-            // socket.connect();
             dispatchState({type: 'start'});
-            setOpponentBoard(getEmptyBoard());
         }, [dispatchState]);
 
     useEffect(() => {
@@ -102,9 +110,6 @@ export function useGame() {
                 case ' ':
                     dispatchState({ type: 'drop', payload: 'full' });
                     break;
-                case 'a':
-                    socket.emit('send_handicap', {amount: 2});
-                    break;
                 default:
                     break;
             }
@@ -119,18 +124,22 @@ export function useGame() {
 
     const renderedBoard = structuredClone(board);
     if (isPlaying) {
+        let collision = false;
         shape.forEach((r, i) => {
             r.forEach((isSet, j) => {
                 if (isSet) {
                     if (board[row + i][col + j] !== 'Empty') {
-                        socket.emit('dead');
-                        console.log("lost")
-                        setIsPlaying(false);
+                        collision = true;
                     }
                     renderedBoard[row + i][col + j] = block;
                 }
             });
         });
+    if (collision) {
+        setMessage('you\'re dead');
+        setIsPlaying(false);
+        socket.emit('dead');
     }
-    return {board: renderedBoard, startGame, isPlaying, opponentBoard, roomState}
+    }
+    return {board: renderedBoard, isPlaying, opponentBoard, roomState, message}
 }

@@ -16,6 +16,7 @@ body {
     display:flex;
     flex-direction: column;
     width: 50vw;
+    max-width: 450px;
 }
 
 .row {
@@ -91,6 +92,10 @@ body {
     border: 1px solid black;
 }
 
+.phantom-board h3{
+    text-align: center;
+    border-bottom: 1px solid black;
+}
 .phantom-row {
     display: flex;
     flex-direction: row;

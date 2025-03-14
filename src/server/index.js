@@ -1,8 +1,8 @@
 import fs  from 'fs'
 import debug from 'debug'
-import { SocketAddress } from 'net';
+import { nameList } from './names'
 
-const rooms = []; // {id: string, players: [int], pieces_list: [char], isPlaying: bool}
+const rooms = []; // {id: string, players: {id: name}, pieces_list: [char], isPlaying: bool, death: int}
 const logerror = debug('tetris:error') , loginfo = debug('tetris:info');
 const pieces = ['L', 'J', 'T', 'Z', 'S', 'O', 'I'];
 const generate_list = (length) => Array.from(Array(length), () => getRandomBlock());
@@ -11,6 +11,11 @@ function getRandomBlock() {
     return pieces[Math.floor(Math.random() * pieces.length)]
 }
 
+function room_reset(id) {
+  rooms[id].death = Object.keys(rooms[id].players).length;
+  rooms[id].isPlaying = false;
+  rooms[id].pieces_list = generate_list(50);
+}
 function create_spectrum(board) {
   const spec = new Array(board[0].length);
   
@@ -37,7 +42,7 @@ function get_piece(id, index) {
 
 function find_room_id(id) {
   for(let i = 0; i < rooms.length; i++) {
-    const player = rooms[i].players.indexOf(id);
+    const player = Object.keys( rooms[i].players).indexOf(id);
     if(player !== -1) {
       return i;
     }
@@ -45,21 +50,24 @@ function find_room_id(id) {
   return -1;
 }
 
+function generate_name() { return nameList[Math.floor(Math.random() * nameList.length)]; }
+
 function init_room(room, id) {
-  const res = {index: -1, full: false, leader: true}
+  const res = {index: -1, isLocked: false, leader: true, name: generate_name()}
   for(let i = 0; i < rooms.length; i++) {
     if (rooms[i].id === room) {
-      if (rooms[i].players.length === 1) {
+      if (!rooms[i].isPlaying) {
         res.index = i;
         res.leader = false;
-        rooms[i].players.push(id);
+        rooms[i].players[id] = res.name;
+        rooms[i].death++;
       }
       else
-        res.full = true;
+        res.isLocked = true;
       return res;
     }
   }
-  res.id = (rooms.push({id: room, players: [id], pieces_list: generate_list(50), isPlaying: false})) - 1;
+  res.id = (rooms.push({id: room, players: {[id]: res.name}, pieces_list: generate_list(50), isPlaying: false, death: 1})) - 1;
   return res;
 }
 
@@ -121,7 +129,19 @@ const initEngine = io => {
     });
 
     socket.on('dead', () => {
-      console.log(socket.id + " is dead");
+      const roomIndex = find_room_id(socket.id);
+      console.log(rooms[roomIndex].death);
+      if(roomIndex !== -1) {
+        rooms[roomIndex].death--;
+        if(Object.keys(rooms[roomIndex].players).length === 1 && rooms[roomIndex].death === 0) {
+          socket.emit('win', {message: 'You\'re dead'})
+          room_reset(roomIndex);
+        }
+        else if(rooms[roomIndex].death === 1 && Object.keys(rooms[roomIndex].players).length > 1) {
+          socket.to(rooms[roomIndex].id).emit('win', {message: `${rooms[roomIndex].players[socket.id]} won`});
+          room_reset(roomIndex);
+        }
+      }
     })
 
     socket.on('commit', (payload) => {
@@ -129,23 +149,24 @@ const initEngine = io => {
       if(payload.handicap)
         socket.to(rooms[roomIndex].id).emit('handicap', {amount: payload.handicap - 1});
       const spec = create_spectrum(payload.board);
-      console.log(spec);
-      socket.to(rooms[roomIndex].id).emit('opponent_board_update', {board: spec});
+      socket.to(rooms[roomIndex].id).emit('opponent_board_update', {board: spec, name: rooms[roomIndex].players[socket.id]});
     });
 
     socket.on('join_request', (payload) => {
       const res = init_room(payload.room, socket.id);
       console.log(rooms);
-      if(res.full)
-        socket.emit('error', {message: 'Room full'});
-      socket.join(payload.room);
-      socket.emit('join_room', {isLeader: res.leader});
+      if(res.isLocked)
+        socket.emit('error', {message: 'Room is in game. Try again later'});
+      else {
+        socket.join(payload.room);
+        socket.emit('join_room', {isLeader: res.leader, name: res.name});
+      }
     });
 
     socket.on('start_game', () => {
       console.log('start_game');
       const roomIndex = find_room_id(socket.id);
-      if(roomIndex === -1 || socket.id !== rooms[roomIndex].players[0])
+      if(roomIndex === -1 || socket.id !== Object.keys(rooms[roomIndex].players)[0])
         return;
       rooms[roomIndex].isPlaying = true;
       io.to(rooms[roomIndex].id).emit('start_game');
@@ -154,8 +175,13 @@ const initEngine = io => {
       console.log('disconect', socket.id);
       const roomIndex = find_room_id(socket.id);
       if (roomIndex !== -1) {
-        rooms[roomIndex].players.splice(rooms[roomIndex].players.indexOf(socket.id), 1)
-        if (rooms[roomIndex].players.length === 0)
+        const keys = Object.keys(rooms[roomIndex].players);
+        if(keys.indexOf(socket.id) === 0 && keys.length > 1) {
+          socket.to(keys[1]).emit('join_room', {isLeader: true, name: rooms[roomIndex].players[keys[1]]});
+        }
+        delete(rooms[roomIndex].players[socket.id]);
+        rooms[roomIndex].death--;
+        if (keys.length === 1)
           rooms.splice(roomIndex, 1);
       }
     });
