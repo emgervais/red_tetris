@@ -22,10 +22,9 @@ function useInterval(callback, delay) {
 export function useGame() {
     const [roomState, setRoomState] = useState({ isLeader: false, name: window.location.pathname.split('/').pop() + Math.random() });
     const [isPlaying, setIsPlaying] = useState(false);
-    const [tickSpeed, setTickSpeed] = useState(null);
     const [message, setMessage] = useState('');
     const [opponentBoard, setOpponentBoard] = useState({});
-    const [{board, row, col, block, shape, index}, dispatchState] = playTetris();
+    const [{board, row, col, block, shape, index, score, tickSpeed}, dispatchState] = playTetris();
 
     const tick = useCallback(() => {
         dispatchState({ type: 'drop'});
@@ -94,7 +93,6 @@ export function useGame() {
             setOpponentBoard({});
             dispatchState({type: 'start'});
             socket.emit('get_piece', {index: 0});
-            setTickSpeed(800);
             setIsPlaying(true);
         });
 
@@ -149,5 +147,5 @@ export function useGame() {
         socket.emit('dead');
     }
     }
-    return {board: renderedBoard, isPlaying, opponentBoard, roomState, message}
+    return {board: renderedBoard, isPlaying, opponentBoard, roomState, message, score}
 }

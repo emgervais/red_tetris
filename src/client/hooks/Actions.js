@@ -4,10 +4,10 @@ import { type } from "../helper/type"
 import { socket } from "../socket"
 
 export function playTetris() {
-    const [board, setBoard] = useReducer(boardReducer, {board: [], row: 0, col: 0, block: '', shape: [[]], index: 0}, (emptyState) => {
+    const [state, setBoard] = useReducer(boardReducer, {board: [], row: 0, col: 0, block: '', shape: [[]], index: 0, score: 0, tickSpeed: 0, level: 0, remaining: 0}, (emptyState) => {
             return { ...emptyState, board: getEmptyBoard() }
         });
-    return [board, setBoard]
+    return [state, setBoard]
 }
 
 export function checkCollision(board, shape, row, col) {
@@ -41,6 +41,20 @@ function addPiece({board, row, col, shape, block}) {
     return newBoard
 }
 
+function handleLevel(lines, remaining, level) {
+    const newRemain = remaining - lines;
+    if(newRemain <= 0)
+        return [1, (level + 1) * 10];
+    return [0, newRemain];
+}
+
+function points(level, lines) {
+    const value = [40, 100, 300, 1200];
+    if(!lines)
+        return 0;
+    return ((level + 1) * value[lines - 1]);
+}
+
 function handleLine(board) {
     let lines = 0;
     board.forEach(row => {
@@ -63,7 +77,11 @@ function boardReducer(state, action) {
                 col: 4,
                 block: '',
                 shape: [[]],
-                index: 1
+                index: 1,
+                score: 0,
+                level: 0,
+                remaining: 10,
+                tickSpeed: 800
             }
         case 'drop':
             if (action.payload === 'full') {
@@ -71,16 +89,22 @@ function boardReducer(state, action) {
                     copyState.row++;
                 socket.emit("get_piece", {index: copyState.index++});
                 const {board, lines} = handleLine(addPiece({...copyState}));
+                const [level, remaining] = handleLevel(lines, copyState.remaining, copyState.level);
+                if (level)
+                    copyState.tickSpeed -= 85;
                 socket.emit('commit', {board: board, handicap: lines});
-                return { ...copyState, board: board, shape: [[]], col:4, row:0, index: copyState.index }
+                return { ...copyState, board: board, shape: [[]], col:4, row:0, score: copyState.score + points(copyState.level, lines), level: level + copyState.level, remaining: remaining}
             } else
                 copyState.row++;
             return copyState;
         case 'commit':
             socket.emit('get_piece', {index: copyState.index++});
             const {board, lines} = handleLine(addPiece({...copyState}));
+            const [level, remaining] = handleLevel(lines, copyState.remaining, copyState.level);
+            if (level)
+                copyState.tickSpeed -= 85;
             socket.emit('commit', {board: board, handicap: lines});
-            return { ...copyState, board: board, shape: [[]], col:4, row:0, index: copyState.index }
+            return { ...copyState, board: board, shape: [[]], col:4, row:0, score: copyState.score + points(copyState.level), level: level + copyState.level, remaining: remaining}
         case 'move':
             let col = copyState.col;
             let row = copyState.row;
@@ -92,7 +116,7 @@ function boardReducer(state, action) {
                 row++;
             return { ...copyState, col: col, row: row }
         case 'rotate':
-            let shape = transpose(state.shape);
+            let shape = transpose(copyState.shape);
             if (checkSideCollision(copyState.board, copyState.col, copyState.row, shape))
                 return { ...copyState}
             return {...copyState, shape: shape}

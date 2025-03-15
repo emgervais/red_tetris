@@ -6,13 +6,12 @@ import { PhantomBoard } from '../components/spectral'
 import { socket } from '../socket'
 
 const App = () => {
-  const {board, isPlaying, opponentBoard, roomState, message} = useGame();
-  // const urlParts = window.location.href.split('/').filter(part => part !== '');
-  const user = 'emile';//urlParts.pop();
-  const roomName = '12';//urlParts.pop();
+  const {board, isPlaying, opponentBoard, roomState, message, score} = useGame();
+
   return (
     <div className='container'>
       {isPlaying? <h3>You're playing as {roomState.name}</h3> : ''}
+      {isPlaying? <h4>Your current score is: {score}</h4> : ''}
       {isPlaying? <Board currentBoard={board}/> : <h2>{message}</h2>}
       <div className="control">
         {roomState.isLeader ? !isPlaying ? (<button onClick={() => socket.emit('start_game')}>Start Game</button>) : '': 'Waiting for leader to start game'}
