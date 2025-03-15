@@ -14,7 +14,7 @@ const App = () => {
       {isPlaying? <h4>Your current score is: {score}</h4> : ''}
       {isPlaying? <Board currentBoard={board}/> : <h2>{message}</h2>}
       <div className="control">
-        {roomState.isLeader ? !isPlaying ? (<button onClick={() => socket.emit('start_game')}>Start Game</button>) : '': 'Waiting for leader to start game'}
+        {roomState.isLeader ? !isPlaying ? (<button onClick={() => socket.emit('start_game', {gamemode: 0})}>Start Game</button>) : '': 'Waiting for leader to start game'}
       </div>
       {Object.entries(opponentBoard).map(([key, value]) => (
           <PhantomBoard key={key} name={key} board={value} />

@@ -166,13 +166,13 @@ const initEngine = io => {
       }
     });
 
-    socket.on('start_game', () => {
+    socket.on('start_game', (data) => {
       console.log('start_game');
       const roomIndex = find_room_id(socket.id);
       if(roomIndex === -1 || socket.id !== Object.keys(rooms[roomIndex].players)[0])
         return;
       rooms[roomIndex].isPlaying = true;
-      io.in(rooms[roomIndex].id).emit('start_game');
+      io.in(rooms[roomIndex].id).emit('start_game', {gamemode: data.gamemode});
     })
     socket.on("disconnect", () => {
       console.log('disconect', socket.id);

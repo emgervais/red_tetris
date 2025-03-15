@@ -24,6 +24,7 @@ export function useGame() {
     const [isPlaying, setIsPlaying] = useState(false);
     const [message, setMessage] = useState('');
     const [opponentBoard, setOpponentBoard] = useState({});
+    const [selectedGamemode, setSelectedGamemode] = useState(0);
     const [{board, row, col, block, shape, index, score, tickSpeed}, dispatchState] = playTetris();
 
     const tick = useCallback(() => {
@@ -42,8 +43,9 @@ export function useGame() {
           });
         });
     
-        socket.on('start_game', () => {
+        socket.on('start_game', (payload) => {
             console.log('start');
+            setSelectedGamemode(payload.gamemode);
             startGame();
         });
 
@@ -91,7 +93,7 @@ export function useGame() {
     const startGame = useCallback(() => {
             setMessage('');
             setOpponentBoard({});
-            dispatchState({type: 'start'});
+            dispatchState({type: 'start', payload: selectedGamemode});
             socket.emit('get_piece', {index: 0});
             setIsPlaying(true);
         });
@@ -115,6 +117,9 @@ export function useGame() {
                     break;
                 case ' ':
                     dispatchState({ type: 'drop', payload: 'full' });
+                    break;
+                case 'a':
+                    dispatchState({ type: 'handicap', payload: 3 });
                     break;
                 default:
                     break;
