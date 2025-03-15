@@ -1,6 +1,5 @@
 import fs  from 'fs'
 import debug from 'debug'
-import { nameList } from './names'
 
 const rooms = []; // {id: string, players: {id: name}, pieces_list: [char], isPlaying: bool, death: [string]}
 const logerror = debug('tetris:error') , loginfo = debug('tetris:info');
@@ -50,24 +49,24 @@ function find_room_id(id) {
   return -1;
 }
 
-function generate_name() { return nameList[Math.floor(Math.random() * nameList.length)]; }
-
-function init_room(room, id) {
-  const res = {index: -1, isLocked: false, leader: true, name: generate_name()}
+function init_room(room, id, user) {
+  const res = {isLocked: false, leader: true, name: user}
   for(let i = 0; i < rooms.length; i++) {
     if (rooms[i].id === room) {
       if (!rooms[i].isPlaying) {
-        res.index = i;
-        res.leader = false;
+        if(Object.values(rooms[i].players).includes(user)) {
+          res.name = null;
+          return res
+        }
         rooms[i].players[id] = res.name;
         rooms[i].death.push(id);
-      }
-      else
+        res.leader = false;
+      } else
         res.isLocked = true;
       return res;
     }
   }
-  res.id = (rooms.push({id: room, players: {[id]: res.name}, pieces_list: generate_list(50), isPlaying: false, death: [id]})) - 1;
+  rooms.push({id: room, players: {[id]: res.name}, pieces_list: generate_list(50), isPlaying: false, death: [id]});
   return res;
 }
 
@@ -154,13 +153,16 @@ const initEngine = io => {
     });
 
     socket.on('join_request', (payload) => {
-      const res = init_room(payload.room, socket.id);
+      const res = init_room(payload.room, socket.id, payload.user);
+      
       console.log(rooms);
-      if(res.isLocked)
+      if (res.name === null)
+        socket.emit('error', {message: 'Name already picked Choose an other one.'});
+      else if(res.isLocked)
         socket.emit('error', {message: 'Room is in game. Try again later'});
       else {
         socket.join(payload.room);
-        socket.emit('join_room', {isLeader: res.leader, name: res.name});
+        socket.emit('join_room', {isLeader: res.leader});
       }
     });
 

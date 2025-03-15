@@ -9,5 +9,5 @@
 
 // backend
 // ------------------
-// reconnect
 // at least the Player, Piece and Game classes.
+// handle disconnect win (make function for it)

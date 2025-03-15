@@ -20,7 +20,7 @@ function useInterval(callback, delay) {
 }
 
 export function useGame() {
-    const [roomState, setRoomState] = useState({ isLeader: false, name: '' });
+    const [roomState, setRoomState] = useState({ isLeader: false, name: window.location.pathname.split('/').pop() + Math.random() });
     const [isPlaying, setIsPlaying] = useState(false);
     const [tickSpeed, setTickSpeed] = useState(null);
     const [message, setMessage] = useState('');
@@ -32,14 +32,14 @@ export function useGame() {
     }, [dispatchState]);
 
     useEffect(() => {
-        socket.emit('join_request', {room: 'emile12'});
+        socket.emit('join_request', {room: 'emile12', user: roomState.name});
     }, []);
 
     useEffect(() => {
         socket.on('join_room', (data) => {
           setRoomState({
             isLeader: data.isLeader,
-            name: data.name
+            name: roomState.name
           });
         });
     
