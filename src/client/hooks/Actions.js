@@ -57,7 +57,6 @@ function boardReducer(state, action) {
     let copyState = { ...state };
     switch (action.type) {
         case 'start':
-            socket.emit('get_piece', {index: 0});
             return {
                 board: getEmptyBoard(),
                 row: 0,

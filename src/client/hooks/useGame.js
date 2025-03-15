@@ -20,33 +20,32 @@ function useInterval(callback, delay) {
 }
 
 export function useGame() {
-    const [roomState, setRoomState] = useState({
-      isLeader: false,
-      gameInProgress: false,
-      name: ''
-    });
+    const [roomState, setRoomState] = useState({ isLeader: false, name: '' });
     const [isPlaying, setIsPlaying] = useState(false);
     const [tickSpeed, setTickSpeed] = useState(null);
     const [message, setMessage] = useState('');
     const [opponentBoard, setOpponentBoard] = useState({});
     const [{board, row, col, block, shape, index}, dispatchState] = playTetris();
+
     const tick = useCallback(() => {
         dispatchState({ type: 'drop'});
     }, [dispatchState]);
+
     useEffect(() => {
         socket.emit('join_request', {room: 'emile12'});
     }, []);
+
     useEffect(() => {
         socket.on('join_room', (data) => {
           setRoomState({
             isLeader: data.isLeader,
-            gameInProgress: false,
             name: data.name
           });
         });
     
         socket.on('start_game', () => {
-          startGame();
+            console.log('start');
+            startGame();
         });
 
         socket.on('opponent_board_update', (data) => {
@@ -70,9 +69,15 @@ export function useGame() {
             setMessage(data.message);
         });
         return () => {
-          socket.off('opponent_board_update');
+            socket.off('opponent_board_update');
+            socket.off('join_room');
+            socket.off('start_game');
+            socket.off('new_piece');
+            socket.off('handicap');
+            socket.off('win');
+            socket.off('error');
         }
-      }, [socket]);
+      }, [socket, startGame]);
 
     useInterval(() => {
         if (!isPlaying)
@@ -85,14 +90,17 @@ export function useGame() {
     }, tickSpeed);
     
     const startGame = useCallback(() => {
-            setIsPlaying(true);
-            setTickSpeed(800);
+            setMessage('');
+            setOpponentBoard({});
             dispatchState({type: 'start'});
-        }, [dispatchState]);
+            socket.emit('get_piece', {index: 0});
+            setTickSpeed(800);
+            setIsPlaying(true);
+        });
 
     useEffect(() => {
         const handleKeyDown = (e) => {
-            if (!isPlaying) return;
+            if (!isPlaying || e.repeat) return;
             
             switch (e.key) {
                 case 'ArrowLeft':

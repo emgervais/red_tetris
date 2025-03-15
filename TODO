@@ -4,10 +4,10 @@
 // invisible gamemode -> bonus
 // increase gravity after threshold -> bonus
 // piece preview -> bonus
-// properly handle death
+
 // only pure fun (doesnt mutate input no http)
+
 // backend
 // ------------------
-// possibility relaunch game + reconnect
-// handle death
+// reconnect
 // at least the Player, Piece and Game classes.
