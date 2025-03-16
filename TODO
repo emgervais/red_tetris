@@ -1,9 +1,7 @@
-// invisible gamemode -> bonus
 // piece preview -> bonus
 
 // only pure fun (doesnt mutate input no http)
 
 // backend
 // ------------------
-// at least the Player, Piece and Game classes.
 // handle disconnect win (make function for it)

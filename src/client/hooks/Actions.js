@@ -9,7 +9,7 @@ import { socket } from "../socket"
 //1: bonus (destructible handicap, increase gravity)
 //2: invisible(no handicap. no increase gravity)
 export function playTetris() {
-    const [state, setBoard] = useReducer(boardReducer, {board: [], row: 0, col: 0, block: '', shape: [[]], index: 0, score: 0, tickSpeed: 0, level: 0, remaining: 0, gamemode: 0}, (emptyState) => {
+    const [state, setBoard] = useReducer(boardReducer, {board: [], row: 0, col: 0, block: '', shape: [[]], score: 0, tickSpeed: 0, level: 0, remaining: 0, gamemode: 0}, (emptyState) => {
             return { ...emptyState, board: getEmptyBoard() }
         });
     return [state, setBoard]
@@ -83,7 +83,6 @@ function boardReducer(state, action) {
                 col: 4,
                 block: '',
                 shape: [[]],
-                index: 1,
                 score: 0,
                 level: 0,
                 remaining: 10,
@@ -94,24 +93,26 @@ function boardReducer(state, action) {
             if (action.payload === 'full') {
                 while (!checkCollision(copyState.board, copyState.shape, copyState.row, copyState.col))
                     copyState.row++;
-                socket.emit("get_piece", {index: copyState.index++});
+                socket.emit("get_piece");
                 const {board, lines} = handleLine(addPiece({...copyState}), copyState.gamemode);
                 const [level, remaining] = handleLevel(lines, copyState.remaining, copyState.level);
                 if (level && copyState.gamemode)
                     copyState.tickSpeed -= 85;
-                socket.emit('commit', {board: board, handicap: lines});
-                return { ...copyState, board: board, shape: [[]], col:4, row:0, score: copyState.score + points(copyState.level, lines), level: level + copyState.level, remaining: remaining}
+                const score = copyState.score + points(copyState.level)
+                socket.emit('commit', {board: board, handicap: lines, score: score});
+                return { ...copyState, board: board, shape: [[]], col:4, row:0, score: score, level: level + copyState.level, remaining: remaining}
             } else
                 copyState.row++;
             return copyState;
         case 'commit':
-            socket.emit('get_piece', {index: copyState.index++});
+            socket.emit('get_piece');
             const {board, lines} = handleLine(addPiece({...copyState}), copyState.gamemode);
             const [level, remaining] = handleLevel(lines, copyState.remaining, copyState.level);
             if (level)
                 copyState.tickSpeed -= 85;
-            socket.emit('commit', {board: board, handicap: lines});
-            return { ...copyState, board: board, shape: [[]], col:4, row:0, score: copyState.score + points(copyState.level), level: level + copyState.level, remaining: remaining}
+            const score = copyState.score + points(copyState.level)
+            socket.emit('commit', {board: board, handicap: lines, score: score});
+            return { ...copyState, board: board, shape: [[]], col:4, row:0, score: score, level: level + copyState.level, remaining: remaining}
         case 'move':
             let col = copyState.col;
             let row = copyState.row;
@@ -131,7 +132,8 @@ function boardReducer(state, action) {
             while(action.payload) {
                 copyState.board.shift()
                 const line = Array(10).fill('Lock');
-                if(copyState.gamemode)
+                console.log(copyState.gamemode)
+                if(copyState.gamemode !== 0)
                     line[Math.floor(Math.random() * 9)] = 'Empty';
                 copyState.board.push(line);
                 action.payload--;
