@@ -1,7 +1,8 @@
 import { useState, useRef, useEffect, useCallback } from "react";
-import {playTetris, checkCollision} from "./Actions";
-import { getEmptyBoard } from "./Actions";
-import { socket } from "../socket";
+import { useDispatch, useSelector } from "react-redux";
+import {checkCollision} from '../core/gameLogic'
+import { socket } from "../network/socket";
+import { start, drop, commit, move, rotate, handicap, newPiece } from "../state/boardReducer";
 
 function useInterval(callback, delay) {
     const callbackRef = useRef(callback);
@@ -20,15 +21,16 @@ function useInterval(callback, delay) {
 }
 
 export function useGame() {
+    const dispatch = useDispatch();
+    const { board, row, col, block, shape, score, tickSpeed, gamemode } = useSelector(state => state.boardState);
     const [roomState, setRoomState] = useState({ isLeader: false, name: window.location.pathname.split('/').pop() + Math.random() });
     const [isPlaying, setIsPlaying] = useState(false);
     const [message, setMessage] = useState('');
     const [opponentBoard, setOpponentBoard] = useState({});
-    const [{board, row, col, block, shape, score, tickSpeed}, dispatchState] = playTetris();
 
     const tick = useCallback(() => {
-        dispatchState({ type: 'drop'});
-    }, [dispatchState]);
+        dispatch(drop());
+    }, [dispatch]);
 
     useEffect(() => {
         socket.emit('join_request', {room: 'emile12', user: roomState.name});
@@ -43,7 +45,11 @@ export function useGame() {
         });
     
         socket.on('start_game', (payload) => {
-            startGame(payload.gamemode);
+            setMessage('');
+            setOpponentBoard({});
+            dispatch(start(payload.gamemode));
+            socket.emit('get_piece');
+            setIsPlaying(true);
         });
 
         socket.on('opponent_board_update', (data) => {
@@ -51,11 +57,11 @@ export function useGame() {
         });
         
         socket.on('new_piece', (data) => {
-            dispatchState({ type: 'new_piece', payload: data.piece });
+            dispatch(newPiece(data.piece));
         });
 
         socket.on('handicap', (data) => {
-            dispatchState({ type: 'handicap', payload: data.amount});
+            dispatch(handicap(data.amount));
         });
 
         socket.on('win', (data) => {
@@ -75,25 +81,17 @@ export function useGame() {
             socket.off('win');
             socket.off('error');
         }
-      }, [socket, startGame]);
+      }, [dispatch]);
 
     useInterval(() => {
         if (!isPlaying)
             return;
         if (checkCollision(board, shape, row, col)) {
-            setTimeout(function(){}, 1000);
-            dispatchState({ type: 'commit' });
+            setTimeout(() => {}, 1000);
+            dispatch(commit());
         } else
             tick();
     }, tickSpeed);
-    
-    const startGame = useCallback((gamemode) => {
-            setMessage('');
-            setOpponentBoard({});
-            dispatchState({type: 'start', payload: gamemode});
-            socket.emit('get_piece', {index: 0});
-            setIsPlaying(true);
-        });
 
     useEffect(() => {
         const handleKeyDown = (e) => {
@@ -101,22 +99,23 @@ export function useGame() {
             
             switch (e.key) {
                 case 'ArrowLeft':
-                    dispatchState({ type: 'move', payload: 'left' });
+                    dispatch(move('left' ));
                     break;
                 case 'ArrowRight':
-                    dispatchState({ type: 'move', payload: 'right' });
+                    dispatch(move('right' ));
                     break;
                 case 'ArrowUp':
-                    dispatchState({ type: 'rotate' });
+                    dispatch(rotate());
                     break;
                 case 'ArrowDown':
-                    dispatchState({ type: 'move', payload: 'down' });
+                    dispatch(move('down' ));
                     break;
                 case ' ':
-                    dispatchState({ type: 'drop', payload: 'full' });
+                    dispatch(drop('full'));
+                    dispatch(commit());
                     break;
                 case 'a':
-                    dispatchState({ type: 'handicap', payload: 3 });
+                    dispatch(handicap(3));
                     break;
                 default:
                     break;
@@ -128,7 +127,7 @@ export function useGame() {
         return () => {
             document.removeEventListener('keydown', handleKeyDown);
         };
-    }, [isPlaying, dispatchState]);
+    }, [isPlaying, dispatch]);
 
     const renderedBoard = structuredClone(board);
     if (isPlaying) {
@@ -143,11 +142,11 @@ export function useGame() {
                 }
             });
         });
-    if (collision) {
-        setMessage('you\'re dead');
-        setIsPlaying(false);
-        socket.emit('dead');
-    }
+        if (collision) {
+            setMessage('you\'re dead');
+            setIsPlaying(false);
+            socket.emit('dead');
+        }
     }
     return {board: renderedBoard, isPlaying, opponentBoard, roomState, message, score}
 }

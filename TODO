@@ -1,7 +1,10 @@
 // piece preview -> bonus
+// score win -> bonus
 
 // only pure fun (doesnt mutate input no http)
+// socket.io in middleware
+// redux instead of usereducer
 
 // backend
 // ------------------
-// handle disconnect win (make function for it)
+//multiple files for classes and server functions

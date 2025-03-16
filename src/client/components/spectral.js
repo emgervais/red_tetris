@@ -1,5 +1,5 @@
 import React from 'react';
-import { getEmptyBoard } from '../hooks/Actions';
+import { getEmptyBoard } from '../core/board'
 
 export const PhantomBoard = ({ name, board }) => {
   if (!board) return <div className="phantom-board-placeholder">Waiting for opponent...</div>;

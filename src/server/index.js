@@ -58,7 +58,7 @@ class Room {
     this.pieces_list = this.pieces_list.concat(this.pieceGenerator.generate_list(50));
   }
   startGame(gamemode) {
-    this.isplaying = true;
+    this.isPlaying = true;
     this.isSolo = this.players.length === 1 ? true : false;
     this.gamemode = gamemode;
   }
@@ -147,7 +147,6 @@ function init_room(room, id, user) {
         res.leader = false;
       } 
       else {
-        console.log('in');
         res.isLocked = true;
       }
       return res;
@@ -227,7 +226,6 @@ const initEngine = io => {
       }
 
       const winner = rooms[roomIndex].handleDeath(socket.id);
-      console.log(winner);
       if (winner === false)
         return;
 

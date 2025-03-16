@@ -13,9 +13,14 @@
     "coverage": "NODE_ENV=test nyc --include src --all -r text -r lcov -r text --require babel-core/register mocha "
   },
   "dependencies": {
+    "@reduxjs/toolkit": "^1.9.5",
+    "buffer": "^6.0.3",
+    "immer": "^9.0.21",
+    "path": "^0.12.7",
+    "process": "^0.11.10",
     "react": "^16.2.0",
     "react-dom": "^16.2.0",
-    "react-redux": "^8.1.3",
+    "react-redux": "^7.2.9",
     "react-router": "^4.2.0",
     "react-router-dom": "^4.2.2",
     "redux": "^4.2.1",

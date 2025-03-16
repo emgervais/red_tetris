@@ -1,9 +1,8 @@
 import React from 'react'
-import { connect } from 'react-redux'
 import { Board } from '../components/board'
 import { useGame } from '../hooks/useGame'
 import { PhantomBoard } from '../components/spectral'
-import { socket } from '../socket'
+import { socket } from '../network/socket'
 
 const App = () => {
   const {board, isPlaying, opponentBoard, roomState, message, score} = useGame();
@@ -27,10 +26,4 @@ const App = () => {
   )
 }
 
-const mapStateToProps = (state) => {
-  return {
-    message: state.message
-  }
-}
-
-export default connect(mapStateToProps, null)(App)
+export default App;
