@@ -22,7 +22,6 @@ const boardSlice = createSlice({
   initialState,
   reducers: {
     start: (state, action) => {
-      console.log('start');
       state.board = getEmptyBoard();
       state.row = 0;
       state.col = 4;
@@ -51,7 +50,7 @@ const boardSlice = createSlice({
         board: state.board, 
         row: state.row, 
         col: state.col, 
-        shape: state.shape, 
+        shape: state.shape,
         block: state.block 
       }), state.gamemode);
       
@@ -69,8 +68,6 @@ const boardSlice = createSlice({
       state.shape = [[]];
       state.col = 4;
       state.row = 0;
-      socket.emit('commit', {handicap: result.lines, score: state.score, board: state.board});
-      socket.emit('get_piece');
     },
     
     move: (state, action) => {

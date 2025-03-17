@@ -3,6 +3,7 @@ import { useDispatch, useSelector } from "react-redux";
 import {checkCollision} from '../core/gameLogic'
 import { socket } from "../network/socket";
 import { start, drop, commit, move, rotate, handicap, newPiece } from "../state/boardReducer";
+import { socketEmit } from '../state/store';
 
 function useInterval(callback, delay) {
     const callbackRef = useRef(callback);
@@ -27,13 +28,14 @@ export function useGame() {
     const [isPlaying, setIsPlaying] = useState(false);
     const [message, setMessage] = useState('');
     const [opponentBoard, setOpponentBoard] = useState({});
+    
 
     const tick = useCallback(() => {
         dispatch(drop());
     }, [dispatch]);
 
     useEffect(() => {
-        socket.emit('join_request', {room: 'emile12', user: roomState.name});
+        dispatch(socketEmit('join_request', {room: 'emile12', user: roomState.name}));
     }, []);
 
     useEffect(() => {
@@ -48,7 +50,7 @@ export function useGame() {
             setMessage('');
             setOpponentBoard({});
             dispatch(start(payload.gamemode));
-            socket.emit('get_piece');
+            dispatch(socketEmit('get_piece', {}));
             setIsPlaying(true);
         });
 
@@ -145,7 +147,7 @@ export function useGame() {
         if (collision) {
             setMessage('you\'re dead');
             setIsPlaying(false);
-            socket.emit('dead');
+            dispatch(socketEmit('dead', {}));
         }
     }
     return {board: renderedBoard, isPlaying, opponentBoard, roomState, message, score}
