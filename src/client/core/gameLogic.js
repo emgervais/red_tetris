@@ -1,7 +1,15 @@
+export function removeEmptyRows(shape) {
+    return shape.filter(row => 
+      row.some(cell => cell !== 0)
+    );
+  }
+
 export function checkCollision(board, shape, row, col) {
-    for (let i = 0; i < shape.length; i++) {
-        for (let j = 0; j < shape[i].length; j++) {
-            if ((i + 1 === shape.length && row + i + 1 === board.length) || (shape[i][j] && (board[row + i + 1][col + j] !== 'Empty')))
+    console.log(shape);
+    const clearShape = removeEmptyRows(shape);
+    for (let i = 0; i < clearShape.length; i++) {
+        for (let j = 0; j < clearShape[i].length; j++) {
+            if ((i + 1 === clearShape.length && row + i + 1 === board.length) || (clearShape[i][j] && (board[row + i + 1][col + j] !== 'Empty')))
                 return true;
         }
     }
@@ -9,9 +17,10 @@ export function checkCollision(board, shape, row, col) {
 }
 
 export function checkSideCollision(board, col, row, shape) {
-    for (let i = 0; i < shape.length; i++) {
-        for (let j = 0; j < shape[i].length; j++) {
-            if (shape[i][j] && (!board[row + i] || !board[row + i][col + j] || board[row + i][col + j] !== 'Empty'))    
+    const clearShape = removeEmptyRows(shape);
+    for (let i = 0; i < clearShape.length; i++) {
+        for (let j = 0; j < clearShape[i].length; j++) {
+            if (clearShape[i][j] && (!board[row + i] || !board[row + i][col + j] || board[row + i][col + j] !== 'Empty'))    
                 return true;
         }
     }

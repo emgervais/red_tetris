@@ -2,7 +2,6 @@ import { createSlice } from '@reduxjs/toolkit'
 import { pieces } from '../core/piece'
 import { handleLine, addPiece, getEmptyBoard } from '../core/board'
 import { checkCollision, checkSideCollision, handleLevel, points, transpose } from '../core/gameLogic'
-import { socket } from '../network/socket'
 
 const initialState = {
   board: getEmptyBoard(),
@@ -13,6 +12,7 @@ const initialState = {
   score: 0,
   tickSpeed: 800,
   level: 0,
+  lastClearedLines: 0,
   remaining: 10,
   gamemode: 0
 };
@@ -29,6 +29,7 @@ const boardSlice = createSlice({
       state.shape = [[]];
       state.score = 0;
       state.level = 0;
+      state.lastClearedLines = 0;
       state.remaining = 10;
       state.tickSpeed = 800;
       state.gamemode = action.payload;
@@ -55,7 +56,7 @@ const boardSlice = createSlice({
       }), state.gamemode);
       
       state.board = result.board;
-      
+      state.lastClearedLines = result.lines;
       const levelUpdate = handleLevel(result.lines, state.remaining, state.level);
       if (levelUpdate[0] && state.gamemode) {
         state.tickSpeed -= 85;

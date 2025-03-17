@@ -1,8 +1,11 @@
+import { removeEmptyRows } from './gameLogic'
+
 export function addPiece({board, row, col, shape, block}) {
     const newBoard = board.map(row => [...row]);
-    for (let i = 0; i < shape.length; i++) {
-        for (let j = 0; j < shape[i].length; j++) {
-            if (shape[i][j])
+    const clearShape = removeEmptyRows(shape);
+    for (let i = 0; i < clearShape.length; i++) {
+        for (let j = 0; j < clearShape[i].length; j++) {
+            if (clearShape[i][j])
                 newBoard[row + i][col + j] = block;
         }
     }

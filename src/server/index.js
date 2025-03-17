@@ -264,8 +264,8 @@ const initEngine = io => {
       const roomIndex = find_room_id(socket.id);
       if(roomIndex === false || socket.id !== rooms[roomIndex].leader)
         return;
-      rooms[roomIndex].startGame(data.gamemode);
-      io.in(rooms[roomIndex].id).emit('start_game', {gamemode: data.gamemode});
+      rooms[roomIndex].startGame(data);
+      io.in(rooms[roomIndex].id).emit('start_game', {gamemode: data});
     });
 
     //done
