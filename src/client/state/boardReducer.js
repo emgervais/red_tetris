@@ -8,6 +8,7 @@ const initialState = {
   row: 0,
   col: 0,
   block: '',
+  nextBlock: '',
   shape: [[]],
   score: 0,
   tickSpeed: 800,
@@ -26,6 +27,7 @@ const boardSlice = createSlice({
       state.row = 0;
       state.col = 4;
       state.block = '';
+      state.nextBlock = '';
       state.shape = [[]];
       state.score = 0;
       state.level = 0;
@@ -109,8 +111,9 @@ const boardSlice = createSlice({
     },
     
     newPiece: (state, action) => {
-      state.block = action.payload;
-      state.shape = pieces[action.payload];
+      state.block = state.nextBlock ? state.nextBlock: action.payload;
+      state.nextBlock = action.payload;
+      state.shape = pieces[state.block];
     }
   }
 });

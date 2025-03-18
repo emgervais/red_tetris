@@ -2,7 +2,7 @@ import { useRef, useEffect, useCallback } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { checkCollision, removeEmptyRows } from '../core/gameLogic';
 import { drop, commit } from "../state/boardReducer";
-import { socketEmit } from '../state/store';
+import { socketEmit } from '../state/socketMiddleware';
 import { keyHook } from "./keyHook";
 import { setPlayerName, setPlaying } from "../state/roomReducer";
 
@@ -24,7 +24,7 @@ function useInterval(callback, delay) {
 
 export function useGame() {
     const dispatch = useDispatch();
-    const { board, row, col, block, shape, score, tickSpeed } = useSelector(state => state.boardState);
+    const { board, row, col, block, nextBlock, shape, score, tickSpeed } = useSelector(state => state.boardState);
     const { isLeader, name, isPlaying, message, opponentBoards } = useSelector(state => state.roomState);
 
     const tick = useCallback(() => {
@@ -72,13 +72,13 @@ export function useGame() {
         dispatch(setPlaying());
         dispatch(socketEmit('dead', {}));
     }
-
     return {
         board: renderedBoard, 
         isPlaying, 
         opponentBoard: opponentBoards, 
         roomState: { isLeader, name }, 
         message, 
-        score
+        score,
+        nextBlock
     };
 }
