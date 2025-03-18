@@ -1,9 +1,4 @@
 // piece preview -> bonus
-// score win -> bonus
-
-// only pure fun (doesnt mutate input no http)
-// socket.io in middleware
-// redux instead of usereducer
 
 // backend
 // ------------------

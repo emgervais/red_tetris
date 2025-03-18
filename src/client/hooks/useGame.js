@@ -4,7 +4,7 @@ import { checkCollision, removeEmptyRows } from '../core/gameLogic';
 import { drop, commit } from "../state/boardReducer";
 import { socketEmit } from '../state/store';
 import { keyHook } from "./keyHook";
-import { setPlayerName } from "../state/roomReducer";
+import { setPlayerName, setPlaying } from "../state/roomReducer";
 
 function useInterval(callback, delay) {
     const callbackRef = useRef(callback);
@@ -53,8 +53,8 @@ export function useGame() {
     }, tickSpeed);
 
     const renderedBoard = structuredClone(board);
+    let collision = false;
     if (isPlaying) {
-        let collision = false;
         const clearShape = removeEmptyRows(shape);
         clearShape.forEach((r, i) => {
             r.forEach((isSet, j) => {
@@ -67,9 +67,10 @@ export function useGame() {
             });
         });
         
-        if (collision) {
-            dispatch(socketEmit('dead', {}));
-        }
+    }
+    if (collision) {
+        dispatch(setPlaying());
+        dispatch(socketEmit('dead', {}));
     }
 
     return {
