@@ -1,23 +1,10 @@
-menu after joining
-make the otherplayer spectra
-socket.io in middleware(????)
+// piece preview -> bonus
+// score win -> bonus
 
-score -> bonus
-destructible handicap -> bonus
-invisible gamemode -> bonus
-increase gravity after threshold -> bonus
-piece preview -> bonus
+// only pure fun (doesnt mutate input no http)
+// socket.io in middleware
+// redux instead of usereducer
 
-
-
-backend
-------------------
-socket:
-    get piece
-    send handicap
-    dead
-    commit piece (for spectra)
-
-room creation and handling
-possibility relaunch game
-piece generation
+// backend
+// ------------------
+//multiple files for classes and server functions

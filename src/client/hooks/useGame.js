@@ -1,7 +1,10 @@
-import { useState, useRef, useEffect, useCallback } from "react";
-import {playTetris, checkCollision} from "./Actions";
-import { getEmptyBoard } from "./Actions";
-
+import { useRef, useEffect, useCallback } from "react";
+import { useDispatch, useSelector } from "react-redux";
+import { checkCollision, removeEmptyRows } from '../core/gameLogic';
+import { drop, commit } from "../state/boardReducer";
+import { socketEmit } from '../state/store';
+import { keyHook } from "./keyHook";
+import { setPlayerName } from "../state/roomReducer";
 
 function useInterval(callback, delay) {
     const callbackRef = useRef(callback);
@@ -20,90 +23,61 @@ function useInterval(callback, delay) {
 }
 
 export function useGame() {
-    const [isPlaying, setIsPlaying] = useState(false);
-    const [tickSpeed, setTickSpeed] = useState(null);
-    const [opponentBoard, setOpponentBoard] = useState(null);
+    const dispatch = useDispatch();
+    const { board, row, col, block, shape, score, tickSpeed } = useSelector(state => state.boardState);
+    const { isLeader, name, isPlaying, message, opponentBoards } = useSelector(state => state.roomState);
 
-    const [{board, row, col, block, shape}, dispatchState] = playTetris();
     const tick = useCallback(() => {
-        dispatchState({ type: 'drop'});
-    }, [dispatchState]);
+        dispatch(drop());
+    }, [dispatch]);
 
-    // useEffect(() => {
-    //     socket.on('commit', (data) => {
-    //       setOpponentBoard(data.board);
-    //     });
-        
-    //     return () => {
-    //       socket.off('opponent_board_update');
-    //     };
-    //   }, []);
+    keyHook(isPlaying);
+    
+    useEffect(() => {
+        const playerName = window.location.pathname.split('/').pop() + Math.random();
+        dispatch(setPlayerName(playerName));
+        dispatch(socketEmit('join_request', {
+            room: 'emile12', 
+            user: playerName
+        }));
+    }, [dispatch]); 
 
     useInterval(() => {
-        if (!isPlaying)
-            return;
-        if (checkCollision(board, shape, row, col)) {
-            setTimeout(function(){}, 1000);
-            dispatchState({ type: 'commit' });
-        } else
-            tick();
-    }, tickSpeed);
-    
-    const startGame = useCallback(() => {
-            setIsPlaying(true);
-            setTickSpeed(800);
-            dispatchState({type: 'start'});
-            setOpponentBoard(getEmptyBoard());
-        }, [dispatchState]);
-
-    useEffect(() => {
-        const handleKeyDown = (e) => {
-            if (!isPlaying) return;
-            
-            switch (e.key) {
-                case 'ArrowLeft':
-                    dispatchState({ type: 'move', payload: 'left' });
-                    break;
-                case 'ArrowRight':
-                    dispatchState({ type: 'move', payload: 'right' });
-                    break;
-                case 'ArrowUp':
-                    dispatchState({ type: 'rotate' });
-                    break;
-                case 'ArrowDown':
-                    dispatchState({ type: 'move', payload: 'down' });
-                    break;
-                case ' ':
-                    dispatchState({ type: 'drop', payload: 'full' });
-                    break;
-                case 'a':
-                    dispatchState({type: 'handicap'});
-                    break;
-                default:
-                    break;
-            }
-        };
-    
-        document.addEventListener('keydown', handleKeyDown);
+        if (!isPlaying) return;
         
-        return () => {
-            document.removeEventListener('keydown', handleKeyDown);
-        };
-    }, [isPlaying, dispatchState]);
+        if (checkCollision(board, shape, row, col)) {
+            dispatch(commit());
+        } else {
+            tick();
+        }
+    }, tickSpeed);
 
     const renderedBoard = structuredClone(board);
     if (isPlaying) {
-        shape.forEach((r, i) => {
+        let collision = false;
+        const clearShape = removeEmptyRows(shape);
+        clearShape.forEach((r, i) => {
             r.forEach((isSet, j) => {
                 if (isSet) {
                     if (board[row + i][col + j] !== 'Empty') {
-                        console.log('lost');
-                        setIsPlaying(false);
+                        collision = true;
                     }
                     renderedBoard[row + i][col + j] = block;
                 }
             });
         });
+        
+        if (collision) {
+            dispatch(socketEmit('dead', {}));
+        }
     }
-    return {board: renderedBoard, startGame, isPlaying, opponentBoard}
+
+    return {
+        board: renderedBoard, 
+        isPlaying, 
+        opponentBoard: opponentBoards, 
+        roomState: { isLeader, name }, 
+        message, 
+        score
+    };
 }
