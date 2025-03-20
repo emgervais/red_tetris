@@ -17,7 +17,7 @@ export function handleLine(board, gamemode) {
     const copyBoard = [...board];
     copyBoard.forEach((row, index) => {
         if (row.every(cell => (cell !== 'Empty' && (gamemode !== 0 ? true : cell !== 'Lock')))) {
-            lines++;
+            lines += row.some(cell => cell === 'Lock') ? 0 : 1;   
             copyBoard.splice(index, 1);
             copyBoard.unshift(Array(10).fill('Empty'));
         }

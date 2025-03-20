@@ -96,7 +96,7 @@ const boardSlice = createSlice({
     
     handicap: (state, action) => {
       let amount = action.payload;
-      
+      state.row = Math.max(0, state.row - amount);
       while (amount > 0) {
         state.board.shift();
         const line = Array(10).fill('Lock');
