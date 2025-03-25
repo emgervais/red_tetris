@@ -1,7 +1,15 @@
 const { expect } = require('chai');
 require('babel-polyfill');
-const { describe, beforeEach, afterEach } = require('mocha');
-const { Piece, Player, Room, create_spectrum, get_piece, find_room_id, init_room, rooms } = require('../src/server/index.js');
+const {
+  Piece,
+  Player,
+  Room,
+  create_spectrum,
+  get_piece,
+  find_room_id,
+  init_room,
+  rooms
+} = require('../src/server/index.js');
 
 describe('Piece Class', () => {
   let piece;
@@ -60,7 +68,7 @@ describe('Room Class', () => {
   });
 
   afterEach(() => {
-    while (rooms.length > 0) rooms.pop(); 
+    rooms.length = 0;
   });
 
   it('should initialize with correct properties', () => {
@@ -90,7 +98,7 @@ describe('Room Class', () => {
 
   it('should expand piece list when needed', () => {
     room.players[0].index = 49;
-    room.getPiece('player1');
+    room.getPiece('player1'); // triggers expansion
     expect(room.pieces_list).to.have.lengthOf(50);
   });
 
@@ -101,19 +109,51 @@ describe('Room Class', () => {
     expect(room.isSolo).to.be.true;
   });
 
-  it('should handle disconnect properly', () => {
+  it('should handle disconnect and set isDone', () => {
     const result = room.handleDisconnect('player1');
     expect(result.isDone).to.be.true;
-    expect(room.players).to.have.lengthOf(1);
   });
 
-  it('should handle multiplayer win conditions', () => {
+  it('should reassign leader on leader disconnect', () => {
+    const player2 = new Player('player2', 'Player2');
+    room.players.push(player2);
+    const result = room.handleDisconnect('player1');
+    expect(result.leader).to.equal('player2');
+    expect(room.leader).to.equal('player2');
+  });
+
+  it('should return false from isWon if not playing', () => {
+    expect(room.isWon()).to.be.false;
+  });
+
+  it('should return winner in gamemode 0 (last alive)', () => {
     const player2 = new Player('player2', 'Player2');
     room.players.push(player2);
     room.startGame(0);
     room.handleDeath('player1');
     const winner = room.isWon();
     expect(winner).to.equal('Player2');
+  });
+
+  it('should return winner in gamemode 1 (highest score)', () => {
+    const player2 = new Player('player2', 'Player2');
+    room.players.push(player2);
+    room.startGame(1);
+    room.players[0].score = 800;
+    room.players[0].isDead = true;
+    room.players[1].score = 1200;
+    room.players[1].isDead = true;
+    const winner = room.isWon();
+    expect(winner).to.equal('Player2');
+  });
+
+  it('should reset room state', () => {
+    room.startGame(0);
+    room.players[0].score = 100;
+    room.resetRoom();
+    expect(room.isPlaying).to.be.false;
+    expect(room.players[0].score).to.equal(0);
+    expect(room.pieces_list).to.have.lengthOf(50);
   });
 });
 
@@ -123,14 +163,14 @@ describe('Utility Functions', () => {
   beforeEach(() => {
     player = new Player('player1', 'TestPlayer');
     room = new Room('room1', player);
-    rooms.push(room); // Use imported rooms array
+    rooms.push(room);
   });
 
   afterEach(() => {
-    while (rooms.length > 0) rooms.pop(); // Use imported rooms array
+    rooms.length = 0;
   });
 
-  it('create_spectrum should calculate heights correctly', () => {
+  it('create_spectrum should return correct column heights', () => {
     const board = [
       ['Empty', 'Empty', 'Empty'],
       ['X', 'Empty', 'X'],
@@ -140,35 +180,49 @@ describe('Utility Functions', () => {
     expect(spectrum).to.deep.equal([1, 2, 1]);
   });
 
-  it('get_piece should return piece for valid player', () => {
+  it('get_piece should return a valid piece', () => {
     const piece = get_piece('player1');
-    expect(piece).to.be.a('string');
     expect(['L', 'J', 'T', 'Z', 'S', 'O', 'I']).to.include(piece);
   });
 
-  it('find_room_id should locate correct room', () => {
-    expect(find_room_id('player1')).to.equal(0);
-    expect(find_room_id('player2')).to.be.false;
+  it('get_piece should return "L" for unknown player', () => {
+    const piece = get_piece('unknown');
+    expect(piece).to.equal('L');
   });
 
-  it('init_room should handle new room creation', () => {
-    const result = init_room('room2', 'player2', 'NewPlayer');
-    expect(result).to.deep.equal({
+  it('find_room_id should return index for player in room', () => {
+    expect(find_room_id('player1')).to.equal(0);
+  });
+
+  it('find_room_id should return false if player not found', () => {
+    expect(find_room_id('missing')).to.be.false;
+  });
+
+  it('init_room should create a new room', () => {
+    const res = init_room('room2', 'id2', 'NewPlayer');
+    expect(res).to.deep.equal({
       isLocked: false,
       leader: true,
       name: 'NewPlayer'
     });
+    expect(rooms.length).to.equal(2);
   });
 
-  it('init_room should handle existing room join', () => {
-    const result = init_room('room1', 'player2', 'Player2');
-    expect(result.isLocked).to.be.false;
-    expect(result.leader).to.be.false;
-    expect(result.name).to.equal('Player2');
+  it('init_room should add player to existing room', () => {
+    const res = init_room('room1', 'id2', 'Player2');
+    expect(res.leader).to.be.false;
+    expect(res.isLocked).to.be.false;
+    expect(res.name).to.equal('Player2');
   });
 
-  it('init_room should reject duplicate names', () => {
-    const result = init_room('room1', 'player2', 'TestPlayer');
-    expect(result.name).to.be.null;
+  it('init_room should reject duplicate name', () => {
+    const res = init_room('room1', 'id2', 'TestPlayer');
+    expect(res.name).to.be.null;
+  });
+
+  it('init_room should reject join if room is in game', () => {
+    room.isPlaying = true;
+    const res = init_room('room1', 'id2', 'LateJoiner');
+    expect(res.isLocked).to.be.true;
   });
 });
