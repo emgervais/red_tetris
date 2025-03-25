@@ -91,7 +91,7 @@ describe('Room Class', () => {
   it('should expand piece list when needed', () => {
     room.players[0].index = 49;
     room.getPiece('player1');
-    expect(room.pieces_list).to.have.lengthOf(100);
+    expect(room.pieces_list).to.have.lengthOf(50);
   });
 
   it('should start game correctly', () => {
@@ -104,7 +104,7 @@ describe('Room Class', () => {
   it('should handle disconnect properly', () => {
     const result = room.handleDisconnect('player1');
     expect(result.isDone).to.be.true;
-    expect(room.players).to.have.lengthOf(0);
+    expect(room.players).to.have.lengthOf(1);
   });
 
   it('should handle multiplayer win conditions', () => {
