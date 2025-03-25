@@ -5,7 +5,6 @@ export function removeEmptyRows(shape) {
   }
 
 export function checkCollision(board, shape, row, col) {
-    console.log(shape);
     const clearShape = removeEmptyRows(shape);
     for (let i = 0; i < clearShape.length; i++) {
         for (let j = 0; j < clearShape[i].length; j++) {

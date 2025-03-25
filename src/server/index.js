@@ -82,8 +82,12 @@ class Room {
   isWon() {
     let alive = 0;
     this.players.forEach((player) => alive += player.isDead ? 0 : 1);
-    if (this.isPlaying && alive === 1)
+    if (!this.isPlaying)
+      return false;
+    if (this.gamemode === 0 && alive === 1)
       return (this.players.find((player) => player.isDead === false)).name;
+    if(this.gamemode === 1 && alive === 0)
+      return (this.players.sort((a, b) => {return b.score - a.score}))[0].name;
     return false;
   }
   resetRoom() {
@@ -316,3 +320,4 @@ export function create(params){
   })
   return promise
 }
+export {  Piece, Player, Room, create_spectrum, get_piece, find_room_id, init_room , rooms };

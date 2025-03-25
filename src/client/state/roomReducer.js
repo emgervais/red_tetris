@@ -15,6 +15,9 @@ const roomSlice = createSlice({
     setPlayerName: (state, action) => {
       state.name = action.payload;
     },
+    setPlaying: (state) => {
+      state.isPlaying = !state.isPlaying;
+    }
   },
 
   extraReducers: (builder) => {
@@ -46,5 +49,5 @@ const roomSlice = createSlice({
   }
 });
 
-export const { setPlayerName } = roomSlice.actions;
+export const { setPlayerName, setPlaying } = roomSlice.actions;
 export default roomSlice.reducer;

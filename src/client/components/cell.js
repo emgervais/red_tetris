@@ -1,7 +1,12 @@
 import React from 'react';
+import PropTypes from 'prop-types';
 
-export function Cell(Block) {
+export const Cell = ({ type }) => {
   return (
-    <div className={`cell ${Block.type}`} />
+    <div className={`cell ${type}`} />
   );
-}
+};
+
+Cell.propTypes = {
+  type: PropTypes.string.isRequired,
+};

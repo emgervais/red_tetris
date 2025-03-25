@@ -2,9 +2,9 @@ import { useRef, useEffect, useCallback } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { checkCollision, removeEmptyRows } from '../core/gameLogic';
 import { drop, commit } from "../state/boardReducer";
-import { socketEmit } from '../state/store';
+import { socketEmit } from '../state/socketMiddleware';
 import { keyHook } from "./keyHook";
-import { setPlayerName } from "../state/roomReducer";
+import { setPlayerName, setPlaying } from "../state/roomReducer";
 
 function useInterval(callback, delay) {
     const callbackRef = useRef(callback);
@@ -24,7 +24,7 @@ function useInterval(callback, delay) {
 
 export function useGame() {
     const dispatch = useDispatch();
-    const { board, row, col, block, shape, score, tickSpeed } = useSelector(state => state.boardState);
+    const { board, row, col, block, nextBlock, shape, score, tickSpeed } = useSelector(state => state.boardState);
     const { isLeader, name, isPlaying, message, opponentBoards } = useSelector(state => state.roomState);
 
     const tick = useCallback(() => {
@@ -53,8 +53,8 @@ export function useGame() {
     }, tickSpeed);
 
     const renderedBoard = structuredClone(board);
+    let collision = false;
     if (isPlaying) {
-        let collision = false;
         const clearShape = removeEmptyRows(shape);
         clearShape.forEach((r, i) => {
             r.forEach((isSet, j) => {
@@ -67,17 +67,18 @@ export function useGame() {
             });
         });
         
-        if (collision) {
-            dispatch(socketEmit('dead', {}));
-        }
     }
-
+    if (collision) {
+        dispatch(setPlaying());
+        dispatch(socketEmit('dead', {}));
+    }
     return {
         board: renderedBoard, 
         isPlaying, 
         opponentBoard: opponentBoards, 
         roomState: { isLeader, name }, 
         message, 
-        score
+        score,
+        nextBlock
     };
 }
