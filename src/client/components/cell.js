@@ -10,3 +10,4 @@ export const Cell = ({ type }) => {
 Cell.propTypes = {
   type: PropTypes.string.isRequired,
 };
+

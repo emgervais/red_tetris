@@ -1,7 +1,7 @@
 import React from 'react';
 import { expect } from 'chai';
 import { render } from '@testing-library/react';
-import { PiecePreview } from '../src/client/components/PiecePreview';
+import { PiecePreview } from '../src/client/components/piecePreview';
 import { pieces } from '../src/client/core/piece';
 
 describe('PiecePreview Component', () => {
