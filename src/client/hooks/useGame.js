@@ -34,10 +34,12 @@ export function useGame() {
     keyHook(isPlaying);
     
     useEffect(() => {
-        const playerName = window.location.pathname.split('/').pop() + Math.random();
+        const url = window.location.pathname.split('/')
+        const playerName = url.pop();
+        const room = url.pop()
         dispatch(setPlayerName(playerName));
         dispatch(socketEmit('join_request', {
-            room: 'emile12', 
+            room: room, 
             user: playerName
         }));
     }, [dispatch]); 

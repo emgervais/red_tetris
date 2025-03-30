@@ -25,6 +25,11 @@ const App = () => {
         <h1>Tetris Game</h1>
         {isPlaying ? <h3>You're playing as {roomState.name}</h3> : ''}
         {isPlaying ? <h4>Your current score is: {score}</h4> : ''}
+        <div className='specBoard'>
+        {Object.entries(opponentBoard).map(([key, value]) => (
+          <PhantomBoard key={key} name={key} board={value} />
+        ))}
+        </div>
       </header>
       <main className='game-area'>
         {isPlaying ? <Board currentBoard={board} /> : <h2>{message}</h2>}
@@ -33,11 +38,6 @@ const App = () => {
         ) : '' : 'Waiting for leader to start game'}
         {isPlaying ? <PiecePreview key="preview" piece={nextBlock} /> : ''}
         </main>
-        <div className='specBoard'>
-        {Object.entries(opponentBoard).map(([key, value]) => (
-          <PhantomBoard key={key} name={key} board={value} />
-        ))}
-        </div>
     </div>
   );
 };
