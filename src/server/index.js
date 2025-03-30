@@ -320,3 +320,4 @@ export function create(params){
   })
   return promise
 }
+export {  Piece, Player, Room, create_spectrum, get_piece, find_room_id, init_room , rooms };

@@ -119,5 +119,4 @@ const boardSlice = createSlice({
 });
 
 export const { start, drop, commit, move, rotate, handicap, newPiece } = boardSlice.actions;
-
 export default boardSlice.reducer;
